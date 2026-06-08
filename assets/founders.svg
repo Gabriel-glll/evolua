@@ -1,0 +1,34 @@
+<svg width="640" height="760" viewBox="0 0 640 760" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Fundadores da EVOLUA (imagem de exemplo)">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="760" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#23252b"/><stop offset="1" stop-color="#15161a"/>
+    </linearGradient>
+    <linearGradient id="gd" x1="0" y1="0" x2="640" y2="760" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#d9b876"/><stop offset="1" stop-color="#9c7b3f"/>
+    </linearGradient>
+  </defs>
+  <rect width="640" height="760" fill="url(#bg)"/>
+  <!-- Figure 1 -->
+  <g fill="#3a3d45">
+    <circle cx="225" cy="300" r="78"/>
+    <path d="M120 760 C120 600 165 470 225 470 C285 470 330 600 330 760 Z"/>
+  </g>
+  <g fill="#2c2f36">
+    <path d="M186 470 C200 540 250 540 264 470 L264 760 L186 760 Z" opacity="0.6"/>
+  </g>
+  <!-- Figure 2 -->
+  <g fill="#43464f">
+    <circle cx="415" cy="300" r="78"/>
+    <path d="M310 760 C310 600 355 470 415 470 C475 470 520 600 520 760 Z"/>
+  </g>
+  <g fill="#34373f">
+    <path d="M376 470 C390 540 440 540 454 470 L454 760 L376 760 Z" opacity="0.6"/>
+  </g>
+  <!-- gold tie accents -->
+  <path d="M222 478 l6 -8 6 8 -6 70 z" fill="url(#gd)" opacity="0.85"/>
+  <rect x="408" y="476" width="14" height="60" rx="3" fill="url(#gd)" opacity="0.7"/>
+  <!-- caption -->
+  <rect x="60" y="640" width="520" height="78" rx="10" fill="#0e0f12" opacity="0.55"/>
+  <text x="320" y="676" text-anchor="middle" font-family="'Inter', Arial, sans-serif" font-size="20" fill="#f4f1ea">Os fundadores da EVOLUA</text>
+  <text x="320" y="702" text-anchor="middle" font-family="'Inter', Arial, sans-serif" font-size="13" fill="#b9b09c">Substitua por uma foto real do casal (assets/founders.jpg)</text>
+</svg>
