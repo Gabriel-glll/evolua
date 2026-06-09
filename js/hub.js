@@ -115,9 +115,11 @@
       root.appendChild(wrap);
     });
 
-    // liga os botões "Acessar/Revisar"
+    // liga os botões "Acessar/Revisar" — abre o leitor de aula
     root.querySelectorAll("button[data-lesson]").forEach((btn) => {
-      btn.addEventListener("click", () => openLesson(btn.dataset.lesson));
+      btn.addEventListener("click", () => {
+        location.href = `aula.html?c=${courseId}&l=${btn.dataset.lesson}`;
+      });
     });
   }
 

@@ -1,112 +1,154 @@
 /* ===========================================================
-   EVOLUA — base de dados dos cursos
-   Cada aula tem "week": em qual semana ela é liberada na
-   modalidade TURMA (aulas semanais). Na modalidade
-   INDEPENDENTE todo o conteúdo já vem liberado.
+   EVOLUA — estrutura dos cursos (grade pública)
+   O conteúdo de cada aula (versículo, blocos, bibliografia,
+   tarefas e teste) fica em js/content-mea.js e
+   js/content-jetro.js, indexado pelo id da aula.
+   "week" = semana em que a aula libera na modalidade TURMA.
    =========================================================== */
 
 const COURSES = {
+  /* ============================ MEA ============================ */
   mea: {
     id: "mea",
     tag: "Curso de Inglês",
     name: "MEA",
     full: "MEA — Mastering English Abroad",
     summary:
-      "Um caminho completo para você sair do zero ao inglês fluente com confiança. " +
-      "Mais que gramática: você aprende a pensar, conversar e viver em inglês — " +
-      "para o trabalho, para a vida e para servir com excelência onde quer que vá.",
-    color: "#d9b876",
-    meta: { duracao: "9 meses", aulas: "12 aulas", nivel: "Iniciante → Avançado" },
+      "Um caminho calmo do zero à fluência. Mais que gramática: você aprende a preparar a " +
+      "mente, construir vocabulário vivo e se comunicar com confiança — no seu ritmo.",
+    color: "#c0704d",
+    meta: { duracao: "9 etapas", aulas: "9 aulas", nivel: "Iniciante → Avançado" },
     forWho:
-      "Para quem quer destravar a conversação, crescer profissionalmente e se sentir " +
-      "seguro em qualquer ambiente de língua inglesa.",
+      "Para quem quer destravar a conversação e crescer com leveza, um passo de cada vez.",
     modules: [
       {
-        title: "Módulo 1 — Fundamentos",
+        title: "Etapa 1 — Mentalidade",
         lessons: [
-          { id: "m1", title: "Boas-vindas e como estudar inglês de verdade", week: 1, min: 18 },
-          { id: "m2", title: "Pronúncia: os sons que mudam tudo", week: 1, min: 32 },
-          { id: "m3", title: "Vocabulário essencial do dia a dia", week: 2, min: 28 },
-          { id: "m4", title: "Presente simples e o verbo to be", week: 3, min: 35 },
+          { id: "mea-1", title: "Welcome to MEA — as 2 leis do aprendizado", week: 1, min: 25 },
         ],
       },
       {
-        title: "Módulo 2 — Conversação",
+        title: "Etapa 2 — Fundamentos",
         lessons: [
-          { id: "m5", title: "Se apresentando com naturalidade", week: 4, min: 30 },
-          { id: "m6", title: "Fazendo perguntas e mantendo o diálogo", week: 5, min: 33 },
-          { id: "m7", title: "Falando sobre rotina e planos", week: 6, min: 29 },
+          { id: "mea-2", title: "Primeiras palavras e sons", week: 2, min: 28 },
+          { id: "mea-3", title: "O verbo to be e o presente", week: 3, min: 32 },
         ],
       },
       {
-        title: "Módulo 3 — Inglês para o trabalho e a vida",
+        title: "Etapa 3 — Vocabulário vivo",
         lessons: [
-          { id: "m8",  title: "Inglês profissional: reuniões e e-mails", week: 7, min: 38 },
-          { id: "m9",  title: "Entrevistas e networking", week: 8, min: 34 },
-          { id: "m10", title: "Compreensão de áudio e filmes", week: 9, min: 31 },
+          { id: "mea-4", title: "Vocabulário do dia a dia", week: 4, min: 26 },
+          { id: "mea-5", title: "Frases que você vai usar", week: 5, min: 30 },
         ],
       },
       {
-        title: "Módulo 4 — Fluência",
+        title: "Etapa 4 — Prática & escuta",
         lessons: [
-          { id: "m11", title: "Pensando em inglês: o salto final", week: 10, min: 40 },
-          { id: "m12", title: "Projeto final e certificação", week: 11, min: 25 },
+          { id: "mea-6", title: "Ouvir e repetir", week: 6, min: 27 },
+          { id: "mea-7", title: "Ensinar para fixar", week: 7, min: 24 },
+        ],
+      },
+      {
+        title: "Etapa 5 — Fluência com calma",
+        lessons: [
+          { id: "mea-8", title: "Pensar em inglês", week: 8, min: 33 },
+          { id: "mea-9", title: "Conversa com confiança", week: 9, min: 30 },
         ],
       },
     ],
   },
 
+  /* =========================== JETRO =========================== */
   jetro: {
     id: "jetro",
     tag: "Educação Financeira",
     name: "JETRO",
     full: "JETRO — Sabedoria e Liberdade Financeira",
     summary:
-      "Inspirado em Jetro, o conselheiro sábio que ensinou Moisés a administrar com ordem, " +
-      "este curso une princípios bíblicos e prática moderna para você sair das dívidas, " +
-      "organizar a casa, multiplicar recursos e construir um legado para sua família.",
-    color: "#6fae8f",
-    meta: { duracao: "8 meses", aulas: "11 aulas", nivel: "Todos os níveis" },
+      "Inspirado em Jetro, o conselheiro que ensinou Moisés a administrar com ordem e a delegar " +
+      "(Êxodo 18), este curso une princípios cristãos e prática moderna: lógica, matemática do " +
+      "dia a dia, finanças da família e os caminhos reais de quem quer empreender no Brasil.",
+    color: "#7f9772",
+    meta: { duracao: "9 temas", aulas: "26 aulas", nivel: "Todos os níveis" },
     forWho:
-      "Para famílias e profissionais que querem paz financeira, bons hábitos e prosperidade " +
-      "com propósito — administrando como bons mordomos daquilo que receberam.",
+      "Para famílias e futuros empreendedores que querem decidir melhor, organizar o dinheiro e " +
+      "crescer com sabedoria — administrando bem aquilo que receberam.",
     modules: [
       {
-        title: "Módulo 1 — Mentalidade e princípios",
+        title: "Tema 1 — Introdução",
         lessons: [
-          { id: "j1", title: "O dinheiro e o coração: fundamentos", week: 1, min: 22 },
-          { id: "j2", title: "Mordomia: administrar bem o que é seu", week: 1, min: 27 },
-          { id: "j3", title: "Diagnóstico: onde você está hoje", week: 2, min: 30 },
+          { id: "jetro-1a", title: "Bem-vindo à JETRO", week: 1, min: 18 },
+          { id: "jetro-1b", title: "Por que conhecimento muda o jogo", week: 1, min: 20 },
         ],
       },
       {
-        title: "Módulo 2 — Organização e orçamento",
+        title: "Tema 2 — Lógica",
         lessons: [
-          { id: "j4", title: "Montando seu orçamento familiar", week: 3, min: 35 },
-          { id: "j5", title: "Cortando o que não serve", week: 4, min: 28 },
-          { id: "j6", title: "Reserva de emergência", week: 5, min: 26 },
+          { id: "jetro-2a", title: "O que é raciocínio lógico", week: 2, min: 22 },
+          { id: "jetro-2b", title: "Exercícios de lógica", week: 2, min: 26 },
+          { id: "jetro-2c", title: "Decidir com lógica", week: 3, min: 24 },
         ],
       },
       {
-        title: "Módulo 3 — Saindo das dívidas",
+        title: "Tema 3 — Matemática",
         lessons: [
-          { id: "j7", title: "Estratégia para quitar dívidas", week: 6, min: 33 },
-          { id: "j8", title: "Negociando com sabedoria", week: 7, min: 24 },
+          { id: "jetro-3a", title: "As 4 operações sem medo", week: 4, min: 28 },
+          { id: "jetro-3b", title: "Porcentagem na prática", week: 4, min: 24 },
+          { id: "jetro-3c", title: "Custo, média e preço", week: 5, min: 26 },
+          { id: "jetro-3d", title: "Lucro, markup e margem", week: 5, min: 28 },
         ],
       },
       {
-        title: "Módulo 4 — Multiplicação e legado",
+        title: "Tema 4 — Financeiro",
         lessons: [
-          { id: "j9",  title: "Primeiros passos nos investimentos", week: 8, min: 36 },
-          { id: "j10", title: "Renda extra e empreendedorismo", week: 9, min: 32 },
-          { id: "j11", title: "Construindo um legado para a família", week: 10, min: 29 },
+          { id: "jetro-4a", title: "Orçamento familiar", week: 6, min: 26 },
+          { id: "jetro-4b", title: "Gastos e dívidas", week: 7, min: 24 },
+          { id: "jetro-4c", title: "Reserva e prioridades", week: 8, min: 22 },
+        ],
+      },
+      {
+        title: "Tema 5 — Planejamento",
+        lessons: [
+          { id: "jetro-5a", title: "Nicho e ideias", week: 9, min: 24 },
+          { id: "jetro-5b", title: "Valores e proposta", week: 10, min: 22 },
+          { id: "jetro-5c", title: "Pedras no caminho", week: 11, min: 22 },
+        ],
+      },
+      {
+        title: "Tema 6 — Início",
+        lessons: [
+          { id: "jetro-6a", title: "Como uma empresa funciona no Brasil", week: 12, min: 28 },
+          { id: "jetro-6b", title: "Tributação básica", week: 13, min: 26 },
+          { id: "jetro-6c", title: "Lidando com rejeições", week: 14, min: 20 },
+        ],
+      },
+      {
+        title: "Tema 7 — Seu negócio",
+        lessons: [
+          { id: "jetro-7a", title: "CLT x PJ", week: 15, min: 24 },
+          { id: "jetro-7b", title: "Regimes: Simples, Real e Presumido", week: 16, min: 28 },
+          { id: "jetro-7c", title: "Marketing, tráfego e posicionamento", week: 17, min: 26 },
+          { id: "jetro-7d", title: "A realidade de empreender", week: 18, min: 24 },
+        ],
+      },
+      {
+        title: "Tema 8 — Mentalidade",
+        lessons: [
+          { id: "jetro-8a", title: "Crescer x só faturar", week: 19, min: 22 },
+          { id: "jetro-8b", title: "Mente centrada e disciplina", week: 20, min: 22 },
+        ],
+      },
+      {
+        title: "Tema 9 — Realidade",
+        lessons: [
+          { id: "jetro-9a", title: "Quando dá errado", week: 21, min: 22 },
+          { id: "jetro-9b", title: "Recomeçar com sabedoria", week: 22, min: 24 },
         ],
       },
     ],
   },
 };
 
-// total de aulas por curso (útil para barra de progresso)
 Object.values(COURSES).forEach((c) => {
   c.totalLessons = c.modules.reduce((s, m) => s + m.lessons.length, 0);
 });
