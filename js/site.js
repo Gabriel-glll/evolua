@@ -57,8 +57,8 @@
         <div class="wrap footer-grid">
           <div class="footer-col" style="max-width:300px">
             <img src="assets/logo.svg" alt="EVOLUA">
-            <p class="muted" style="font-size:.9rem">Estudar na EVOLUA é evoluir a si mesmo.
-            Conhecimento e princípios cristãos para a sua evolução — aberta a todos, de qualquer fé.</p>
+            <p class="muted" style="font-size:.9rem">Escola livre de capacitação com princípios
+            cristãos. Não vendemos apenas cursos — entregamos conhecimento que transforma vidas.</p>
           </div>
           <div class="footer-col">
             <h4>Navegação</h4>
