@@ -143,7 +143,7 @@ p  { margin: 0 0 1rem; color: var(--text-soft); }
 .pillar .tag-from { display: inline-block; font-size: .68rem; letter-spacing: 1.5px; text-transform: uppercase; color: var(--gold); margin-bottom: 8px; }
 
 /* ---------- Boas-vindas / inclusão (pergunta em destaque) ---------- */
-.welcome { background: var(--bg-soft); border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); }
+.welcome { background: var(--bg); border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); }
 .welcome-card {
   max-width: 900px; margin: 0 auto; text-align: center;
   background:

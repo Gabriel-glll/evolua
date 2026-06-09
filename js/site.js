@@ -58,7 +58,7 @@
           <div class="footer-col" style="max-width:300px">
             <img src="assets/logo.svg" alt="EVOLUA">
             <p class="muted" style="font-size:.9rem">Escola livre de capacitação com princípios
-            cristãos. Mais do que cursos, compartilhamos conhecimento que ajuda você a evoluir.</p>
+            cristãos. Cursos voltados à sua evolução — pessoal, espiritual, familiar e profissional.</p>
           </div>
           <div class="footer-col">
             <h4>Navegação</h4>
