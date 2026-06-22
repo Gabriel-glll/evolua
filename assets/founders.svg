@@ -1,27 +1,27 @@
 <svg width="640" height="760" viewBox="0 0 640 760" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Fundadores da EVOLUA (imagem de exemplo)">
   <defs>
     <linearGradient id="bg" x1="0" y1="0" x2="0" y2="760" gradientUnits="userSpaceOnUse">
-      <stop stop-color="#d7c4ab"/><stop offset="1" stop-color="#b39c80"/>
+      <stop stop-color="#16304a"/><stop offset="1" stop-color="#0b1a2e"/>
     </linearGradient>
     <linearGradient id="gd" x1="0" y1="0" x2="640" y2="760" gradientUnits="userSpaceOnUse">
-      <stop stop-color="#dd9b78"/><stop offset="1" stop-color="#a6573a"/>
+      <stop stop-color="#ffb277"/><stop offset="1" stop-color="#f1701a"/>
     </linearGradient>
   </defs>
   <rect width="640" height="760" fill="url(#bg)"/>
   <!-- Figure 1 -->
-  <g fill="#6e5640">
+  <g fill="#2c4a6b">
     <circle cx="225" cy="300" r="78"/>
     <path d="M120 760 C120 600 165 470 225 470 C285 470 330 600 330 760 Z"/>
   </g>
-  <g fill="#5b4633">
+  <g fill="#233c58">
     <path d="M186 470 C200 540 250 540 264 470 L264 760 L186 760 Z" opacity="0.6"/>
   </g>
   <!-- Figure 2 -->
-  <g fill="#7a5e44">
+  <g fill="#345677">
     <circle cx="415" cy="300" r="78"/>
     <path d="M310 760 C310 600 355 470 415 470 C475 470 520 600 520 760 Z"/>
   </g>
-  <g fill="#634c37">
+  <g fill="#284766">
     <path d="M376 470 C390 540 440 540 454 470 L454 760 L376 760 Z" opacity="0.6"/>
   </g>
   <!-- gold tie accents -->
