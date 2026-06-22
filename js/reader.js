@@ -154,12 +154,7 @@
         content.bibliography.map((x) => `<li>${esc(x)}</li>`).join("")}</ul></div>`;
     }
 
-    const done = Auth.getDone(courseId).has(lessonId);
-    html += `<div class="block complete-zone ${done ? "is-done" : ""}" id="completeZone">
-      <div class="todo-state"><p class="b-text" style="text-align:center;color:var(--text-mut)">Terminou o conteúdo? Marque como concluída e siga para as tarefas.</p>
-        <button class="btn btn-gold btn-lg" id="completeBtn">✓ Marcar como concluída</button></div>
-      <div class="done-state"><div class="done-badge">🌱 Aula concluída — parabéns!</div>
-        <div style="margin-top:1rem"><button class="btn btn-ghost" id="undoBtn">Desfazer</button></div></div></div>`;
+    html += `<div class="block" id="completeZone"></div>`;
     html += `</div>`;
     return html;
   }
@@ -225,13 +220,119 @@
       });
     });
     bindQuizzes(root);
-    const zone = $("#completeZone", root);
-    $("#completeBtn", root) && $("#completeBtn", root).addEventListener("click", () => {
-      Auth.setDone(courseId, lessonId, true); zone.classList.add("is-done"); burst();
-    });
-    $("#undoBtn", root) && $("#undoBtn", root).addEventListener("click", () => {
-      Auth.setDone(courseId, lessonId, false); zone.classList.remove("is-done");
-    });
+  }
+
+  /* =========================================================
+     PROCESSO DE CONCLUSÃO (depende da modalidade)
+     - independente: 15 min dentro da aba de leitura (pausa ao sair)
+     - turma: senha enviada por e-mail após a chamada
+     ========================================================= */
+  const NEED = 15 * 60; // 15 minutos em segundos
+  const TIMERKEY = `evolua_timer_${who}_${lessonId}`;
+  const DEMOMODEKEY = `evolua_demomode_${who}`;
+  let activeTab = "content";
+  let timerInt = null;
+
+  function isAdmin() { return sess && sess.role === "admin"; }
+  function getMode() {
+    if (isAdmin()) return localStorage.getItem(DEMOMODEKEY) || "independente";
+    const u = Auth.fullUser();
+    const en = u && u.enrollments && u.enrollments[courseId];
+    return (en && en.mode) || "independente";
+  }
+  const getSecs = () => +localStorage.getItem(TIMERKEY) || 0;
+  const fmtClock = (s) => `${String(Math.floor(s / 60)).padStart(2, "0")}:${String(s % 60).padStart(2, "0")}`;
+
+  function timerActive() {
+    return document.visibilityState === "visible" && document.hasFocus() &&
+      activeTab === "content" && getMode() === "independente" && !Auth.getDone(courseId).has(lessonId);
+  }
+
+  function renderComplete() {
+    if (timerInt) { clearInterval(timerInt); timerInt = null; }
+    const zone = $("#completeZone");
+    if (!zone) return;
+    const done = Auth.getDone(courseId).has(lessonId);
+    const mode = getMode();
+
+    const modeSwitch = isAdmin() ? `
+      <div class="mode-switch">Modalidade (demo de admin):
+        <div class="ms-btns">
+          <button data-m="independente" class="${mode === "independente" ? "active" : ""}">Independente</button>
+          <button data-m="turma" class="${mode === "turma" ? "active" : ""}">Turma</button>
+        </div></div>` : "";
+
+    if (done) {
+      zone.innerHTML = `<div class="comp-card">${modeSwitch}
+        <div class="comp-title" style="color:var(--green)">🌱 Aula concluída — parabéns!</div>
+        <p class="comp-desc">Você pode seguir para as Tarefas e Teste, ou revisar o conteúdo.</p>
+        <button class="btn btn-ghost" id="undoBtn">Desfazer conclusão</button></div>`;
+      bindModeSwitch();
+      $("#undoBtn") && ($("#undoBtn").onclick = () => { Auth.setDone(courseId, lessonId, false); renderComplete(); });
+      return;
+    }
+
+    if (mode === "turma") {
+      zone.innerHTML = `<div class="comp-card">${modeSwitch}
+        <div class="comp-title">Para concluir esta aula</div>
+        <p class="comp-desc">Digite a senha enviada por e-mail após a chamada da sua turma. A presença libera a senha.</p>
+        <div class="comp-pass">
+          <input type="text" id="passInput" placeholder="Senha da aula" autocomplete="off">
+          <button class="btn btn-gold" id="passBtn">Validar e concluir</button>
+        </div>
+        <div class="comp-msg" id="passMsg"></div></div>`;
+      bindModeSwitch();
+      const tryPass = () => {
+        const val = ($("#passInput").value || "").trim().toUpperCase();
+        const msg = $("#passMsg");
+        if (val === lessonPass(courseId, lesson).toUpperCase()) {
+          Auth.setDone(courseId, lessonId, true); burst(); renderComplete();
+        } else { msg.className = "comp-msg err"; msg.textContent = "Senha incorreta. Confira o e-mail da sua turma."; }
+      };
+      $("#passBtn").onclick = tryPass;
+      $("#passInput").addEventListener("keydown", (e) => { if (e.key === "Enter") tryPass(); });
+      return;
+    }
+
+    // independente — timer de 15 min
+    const secs = Math.min(getSecs(), NEED);
+    const ready = secs >= NEED;
+    zone.innerHTML = `<div class="comp-card">${modeSwitch}
+      <div class="comp-title">Para concluir esta aula</div>
+      <p class="comp-desc">Permaneça nesta aba de leitura por <b>15 minutos</b>. Se você sair da aba ou trocar para “Tarefas e Teste”, o tempo pausa.</p>
+      <div class="timer-display" id="timerDisp">${fmtClock(secs)} <span style="font-size:1rem;color:var(--text-mut)">/ 15:00</span></div>
+      <div class="timer-bar"><i id="timerFill" style="width:${Math.round(secs / NEED * 100)}%"></i></div>
+      <div class="timer-note" id="timerNote">Tempo de leitura</div>
+      <button class="btn btn-gold btn-lg" id="completeBtn" ${ready ? "" : "disabled"}>✓ Marcar como concluída</button></div>`;
+    bindModeSwitch();
+    $("#completeBtn").onclick = () => {
+      if (getSecs() >= NEED) { Auth.setDone(courseId, lessonId, true); burst(); renderComplete(); }
+    };
+    startTimer();
+  }
+
+  function startTimer() {
+    if (timerInt) clearInterval(timerInt);
+    timerInt = setInterval(() => {
+      const disp = $("#timerDisp"), fill = $("#timerFill"), note = $("#timerNote"), btn = $("#completeBtn");
+      if (!disp) { clearInterval(timerInt); return; }
+      let secs = getSecs();
+      const active = timerActive();
+      if (active && secs < NEED) { secs++; localStorage.setItem(TIMERKEY, secs); }
+      disp.innerHTML = `${fmtClock(Math.min(secs, NEED))} <span style="font-size:1rem;color:var(--text-mut)">/ 15:00</span>`;
+      fill.style.width = Math.round(Math.min(secs, NEED) / NEED * 100) + "%";
+      if (note) {
+        note.textContent = secs >= NEED ? "Tempo concluído! Você já pode marcar a aula." : (active ? "Lendo… ⏱️" : "⏸️ Pausado (volte para a aba de leitura)");
+        note.className = "timer-note" + (active || secs >= NEED ? "" : " paused");
+      }
+      if (btn && secs >= NEED) btn.disabled = false;
+    }, 1000);
+  }
+
+  function bindModeSwitch() {
+    $$(".mode-switch button").forEach((b) => b.addEventListener("click", () => {
+      localStorage.setItem(DEMOMODEKEY, b.dataset.m); renderComplete();
+    }));
   }
 
   function bindTasks(root) {
@@ -300,11 +401,13 @@
     bindContent(cWrap, notes);
     bindTasks(tWrap);
     setupReveal(cWrap);
+    renderComplete();
 
     $$(".rtab").forEach((tab) => tab.addEventListener("click", () => {
       $$(".rtab").forEach((t) => t.classList.remove("active"));
       tab.classList.add("active");
       const isContent = tab.dataset.tab === "content";
+      activeTab = isContent ? "content" : "tasks";
       cWrap.classList.toggle("hidden", !isContent);
       tWrap.classList.toggle("hidden", isContent);
       if (!isContent) setupReveal(tWrap);

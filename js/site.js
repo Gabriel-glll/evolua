@@ -128,6 +128,7 @@
       <p class="modal-sub">Você está conectado como <b style="color:var(--gold)">${user.name}</b>
       ${user.role === "admin" ? "(acesso total)" : ""}.</p>
       <a class="btn btn-gold btn-block" href="cursos.html" style="margin-bottom:12px">Ir para meus cursos</a>
+      ${user.role === "admin" ? `<a class="btn btn-ghost btn-block" href="chamada.html" style="margin-bottom:12px">📋 Fazer chamada (professores)</a>` : ""}
       <button class="btn btn-ghost btn-block" id="logoutBtn">Sair da conta</button>`;
   }
 

@@ -1,9 +1,8 @@
 /* ===========================================================
-   EVOLUA — renderização do hub de um curso
-   A grade e as informações são SEMPRE visíveis (público).
-   O conteúdo das aulas/tarefas só abre para quem tem acesso.
+   EVOLUA — hub do curso: grade em CARDS
+   A grade é pública; o conteúdo abre só para quem tem acesso.
+   Cada card: imagem, nível de atenção, tempo e status.
    =========================================================== */
-
 (function () {
   const courseId = document.body.dataset.course;
   const course = COURSES[courseId];
@@ -12,48 +11,48 @@
   const fmtDate = (d) =>
     d.toLocaleDateString("pt-BR", { day: "2-digit", month: "long", year: "numeric" });
 
-  /* ---------- Banner de acesso ---------- */
-  function renderAccessBanner() {
-    const el = document.getElementById("accessBanner");
-    const user = Auth.current();
-    const has = Auth.hasAnyAccess(courseId);
+  /* imagens de capa (placeholder — trocar por fotos reais depois).
+     Caem em um gradiente caso a imagem externa falhe. */
+  const COVERS = {
+    mea: [
+      "https://images.unsplash.com/photo-1469474968028-56623f02e42e?w=700&q=60&auto=format&fit=crop",
+      "https://images.unsplash.com/photo-1456513080510-7bf3a84b82f8?w=700&q=60&auto=format&fit=crop",
+      "https://images.unsplash.com/photo-1503676260728-1c00da094a0b?w=700&q=60&auto=format&fit=crop",
+      "https://images.unsplash.com/photo-1488190211105-8b0e65b80b4e?w=700&q=60&auto=format&fit=crop",
+      "https://images.unsplash.com/photo-1502082553048-f009c37129b9?w=700&q=60&auto=format&fit=crop",
+    ],
+    jetro: [
+      "https://images.unsplash.com/photo-1554224155-6726b3ff858f?w=700&q=60&auto=format&fit=crop",
+      "https://images.unsplash.com/photo-1450101499163-c8848c66ca85?w=700&q=60&auto=format&fit=crop",
+      "https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=700&q=60&auto=format&fit=crop",
+      "https://images.unsplash.com/photo-1579621970563-ebec7560ff3e?w=700&q=60&auto=format&fit=crop",
+      "https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=700&q=60&auto=format&fit=crop",
+      "https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?w=700&q=60&auto=format&fit=crop",
+    ],
+  };
 
-    if (has) {
-      const label =
-        user.role === "admin" ? "acesso total (administrador)" : "conteúdo liberado";
-      el.className = "access-banner ok";
-      el.innerHTML = `
-        <div class="txt">🔓 <b>Você tem acesso a este curso</b> — ${label}.
-        Clique em uma aula para começar.</div>
-        <button class="btn btn-ghost" id="bannerAccount">Minha conta</button>`;
-      document.getElementById("bannerAccount").onclick = () =>
-        window.EvoluaSite.openAuthModal();
-      return;
-    }
+  /* níveis de atenção (placeholder — o usuário enviará o nível de cada aula).
+     valores possíveis: "importante" | "muito" | "crucial" */
+  const DEMO_LEVELS = {
+    "jetro-1a": "importante", "jetro-1b": "importante",
+    "jetro-2a": "muito", "jetro-2c": "crucial",
+    "jetro-3d": "crucial", "jetro-4a": "muito", "jetro-4b": "crucial",
+    "jetro-6b": "muito", "jetro-7b": "muito", "jetro-9b": "crucial",
+    "mea-1": "crucial", "mea-3": "muito",
+  };
+  const LEVEL_LABEL = { importante: "Importante", muito: "Muito importante", crucial: "Crucial" };
 
-    el.className = "access-banner";
-    if (user) {
-      el.innerHTML = `
-        <div class="txt">🔒 <b>Você ainda não está matriculado neste curso.</b>
-        A grade está liberada para você conhecer, mas as aulas e tarefas exigem matrícula.</div>
-        <a class="btn btn-gold" href="index.html#contato">Quero me matricular</a>`;
-    } else {
-      el.innerHTML = `
-        <div class="txt">🔒 <b>Conteúdo bloqueado.</b> Conheça toda a grade abaixo.
-        Para acessar as aulas e tarefas, entre com sua senha de aluno.</div>
-        <button class="btn btn-gold" id="bannerLogin">Entrar com minha senha</button>`;
-      document.getElementById("bannerLogin").onclick = () =>
-        window.EvoluaSite.openAuthModal();
-    }
-  }
+  let coverIdx = 0;
+  const nextCover = () => {
+    const arr = COVERS[courseId] || COVERS.jetro;
+    return arr[coverIdx++ % arr.length];
+  };
 
-  /* ---------- Barra de progresso ---------- */
+  /* ---------- Barra de progresso (processo de conclusão) ---------- */
   function renderProgress() {
     const wrap = document.getElementById("progressWrap");
-    if (!Auth.hasAnyAccess(courseId)) {
-      wrap.classList.add("hidden");
-      return;
-    }
+    if (!wrap) return;
+    if (!Auth.hasAnyAccess(courseId)) { wrap.classList.add("hidden"); return; }
     wrap.classList.remove("hidden");
     const done = Auth.getDone(courseId);
     const pct = Math.round((done.size / course.totalLessons) * 100);
@@ -62,161 +61,86 @@
       `${done.size} de ${course.totalLessons} aulas concluídas · ${pct}%`;
   }
 
-  /* ---------- Grade (módulos e aulas) ---------- */
+  /* ---------- Grade em cards ---------- */
   function renderModules() {
     const root = document.getElementById("modules");
     const done = Auth.getDone(courseId);
     root.innerHTML = "";
 
-    course.modules.forEach((mod, mi) => {
-      const wrap = document.createElement("div");
-      wrap.className = "module";
+    course.modules.forEach((mod) => {
+      const block = document.createElement("div");
+      block.className = "tema-block";
 
-      const lessons = mod.lessons
-        .map((les) => {
-          const acc = Auth.lessonAccess(courseId, les);
-          const isDone = done.has(les.id);
-          let icon = "🔒", cls = "locked", sub = "", action = "";
+      const cards = mod.lessons.map((les) => {
+        const acc = Auth.lessonAccess(courseId, les);
+        const isDone = done.has(les.id);
+        const level = DEMO_LEVELS[les.id] || "importante";
+        const cover = les.cover || nextCover();
+        const open = acc.state === "open";
 
-          if (acc.state === "open") {
-            cls = isDone ? "done" : "";
-            icon = isDone ? "✓" : "▶";
-            sub = `${les.min} min`;
-            action = `<button data-lesson="${les.id}">${isDone ? "Revisar" : "Acessar"}</button>`;
-          } else if (acc.state === "locked-time") {
-            sub = `Disponível em ${fmtDate(acc.releaseDate)}`;
-            action = `<span class="tag-lock">🔒 Em breve</span>`;
-          } else if (acc.state === "locked-enroll") {
-            sub = `Semana ${les.week}`;
-            action = `<span class="tag-lock">🔒 Requer matrícula</span>`;
-          } else {
-            sub = `Semana ${les.week}`;
-            action = `<span class="tag-lock">🔒 Requer senha</span>`;
-          }
+        let status = "";
+        if (open) {
+          status = `<span class="status-badge ${isDone ? "done" : "todo"}">${isDone ? "✓ Concluída" : "A fazer"}</span>`;
+        }
 
-          return `
-            <div class="lesson ${cls}">
-              <div class="l-ico">${icon}</div>
-              <div class="l-main">
-                <div class="l-title">${les.title}</div>
-                <div class="l-sub">${sub}</div>
+        let metaRight = "🔒 Requer senha";
+        if (open) metaRight = isDone ? "Revisar →" : "Acessar →";
+        else if (acc.state === "locked-time") metaRight = "🔒 " + fmtDate(acc.releaseDate);
+        else if (acc.state === "locked-enroll") metaRight = "🔒 Requer matrícula";
+
+        return `
+          <article class="lcard ${open ? "open" : "locked"}" ${open ? `data-lesson="${les.id}"` : ""}>
+            <div class="lcard-media">
+              <img src="${cover}" alt="" loading="lazy" onerror="this.remove()">
+              <span class="lvl-badge lvl-${level}">${LEVEL_LABEL[level]}</span>
+              <span class="week-chip">Semana ${les.week}</span>
+              ${status}
+            </div>
+            <div class="lcard-body">
+              <div class="lcard-tema">${mod.title.split("—")[0].trim()}</div>
+              <h3>${les.title}</h3>
+              <div class="lcard-meta">
+                <span>⏱️ ${les.min} min</span>
+                <span class="go">${metaRight}</span>
               </div>
-              <div class="l-action">${action}</div>
-            </div>`;
-        })
-        .join("");
+            </div>
+          </article>`;
+      }).join("");
 
-      wrap.innerHTML = `
-        <div class="module-head">
-          <h3>${mod.title}</h3>
-          <span class="mh-meta">${mod.lessons.length} aulas</span>
-        </div>
-        <div class="lesson-list">${lessons}</div>`;
-      root.appendChild(wrap);
+      block.innerHTML = `
+        <div class="tema-head"><h3>${mod.title}</h3>
+          <span class="tema-count">${mod.lessons.length} aula${mod.lessons.length > 1 ? "s" : ""}</span></div>
+        <div class="lessons-grid">${cards}</div>`;
+      root.appendChild(block);
     });
 
-    // liga os botões "Acessar/Revisar" — abre o leitor de aula
-    root.querySelectorAll("button[data-lesson]").forEach((btn) => {
-      btn.addEventListener("click", () => {
-        location.href = `aula.html?c=${courseId}&l=${btn.dataset.lesson}`;
+    root.querySelectorAll(".lcard.open[data-lesson]").forEach((card) => {
+      card.addEventListener("click", () => {
+        location.href = `aula.html?c=${courseId}&l=${card.dataset.lesson}`;
       });
     });
   }
 
-  /* ---------- Modal de aula (conteúdo + tarefas) ---------- */
-  function findLesson(id) {
-    for (const m of course.modules) {
-      const l = m.lessons.find((x) => x.id === id);
-      if (l) return l;
-    }
-    return null;
-  }
+  document.addEventListener("DOMContentLoaded", () => {
+    const banner = document.getElementById("accessBanner");
+    if (banner) banner.remove(); // banner removido a pedido — fica só o processo de conclusão
+    renderHubHero();
+    renderProgress();
+    renderModules();
+  });
 
-  function buildLessonModal() {
-    if (document.getElementById("lessonModal")) return;
-    const div = document.createElement("div");
-    div.className = "modal-overlay";
-    div.id = "lessonModal";
-    div.innerHTML = `
-      <div class="modal wide" role="dialog" aria-modal="true">
-        <button class="close" id="lessonClose" aria-label="Fechar">×</button>
-        <div id="lessonBody" class="lesson-content"></div>
-      </div>`;
-    document.body.appendChild(div);
-    div.addEventListener("click", (e) => { if (e.target === div) closeLesson(); });
-    document.getElementById("lessonClose").addEventListener("click", closeLesson);
-  }
-
-  function openLesson(id) {
-    const acc = Auth.lessonAccess(courseId, findLesson(id));
-    if (acc.state !== "open") return;
-    const les = findLesson(id);
-    const done = Auth.getDone(courseId).has(id);
-
-    buildLessonModal();
-    const body = document.getElementById("lessonBody");
-    body.innerHTML = `
-      <span class="tag-pill" style="border-color:var(--gold-deep);color:var(--gold)">${course.name}</span>
-      <h3 style="text-align:left;margin-top:12px">${les.title}</h3>
-      <p class="muted" style="margin-bottom:18px">Duração estimada: ${les.min} minutos</p>
-
-      <h4>Vídeo da aula</h4>
-      <div class="video-ph">▶ &nbsp; Player do vídeo (a ser adicionado)</div>
-
-      <h4>Conteúdo</h4>
-      <p>Este é o espaço da aula. Aqui entrará o material completo: explicações, exemplos,
-      slides e materiais de apoio para download. (Conteúdo de demonstração.)</p>
-
-      <h4>Tarefas e testes</h4>
-      <div class="tasks">
-        <label class="task-item"><input type="checkbox"> Assistir à aula completa</label>
-        <label class="task-item"><input type="checkbox"> Concluir os exercícios propostos</label>
-        <label class="task-item"><input type="checkbox"> Responder ao teste de fixação</label>
-      </div>
-
-      <div style="display:flex;gap:12px;margin-top:24px;flex-wrap:wrap">
-        <button class="btn btn-gold" id="markDone">${done ? "✓ Aula concluída" : "Marcar como concluída"}</button>
-        <button class="btn btn-ghost" id="lessonCloseBtn">Fechar</button>
-      </div>`;
-
-    const markBtn = document.getElementById("markDone");
-    markBtn.onclick = () => {
-      const nowDone = !Auth.getDone(courseId).has(id);
-      Auth.setDone(courseId, id, nowDone);
-      markBtn.textContent = nowDone ? "✓ Aula concluída" : "Marcar como concluída";
-      renderProgress();
-      renderModules();
-    };
-    document.getElementById("lessonCloseBtn").onclick = closeLesson;
-
-    document.getElementById("lessonModal").classList.add("open");
-    document.body.style.overflow = "hidden";
-  }
-
-  function closeLesson() {
-    const m = document.getElementById("lessonModal");
-    if (m) m.classList.remove("open");
-    document.body.style.overflow = "";
-  }
-
-  /* ---------- Preenche o cabeçalho do hub ---------- */
+  /* ---------- Cabeçalho do hub ---------- */
   function renderHubHero() {
-    document.getElementById("hubTag").textContent = course.tag;
-    document.getElementById("hubName").textContent = course.full;
-    document.getElementById("hubSummary").textContent = course.summary;
+    const set = (id, val) => { const e = document.getElementById(id); if (e) e.textContent = val; };
+    set("hubTag", course.tag);
+    set("hubName", course.full);
+    set("hubSummary", course.summary);
+    set("hubForWho", course.forWho);
     const meta = document.getElementById("hubMeta");
-    meta.innerHTML = `
+    if (meta) meta.innerHTML = `
       <div class="m"><b>${course.meta.duracao}</b><span>Duração</span></div>
       <div class="m"><b>${course.meta.aulas}</b><span>Aulas</span></div>
       <div class="m"><b>${course.modules.length} módulos</b><span>Estrutura</span></div>
       <div class="m"><b>${course.meta.nivel}</b><span>Nível</span></div>`;
-    document.getElementById("hubForWho").textContent = course.forWho;
   }
-
-  document.addEventListener("DOMContentLoaded", () => {
-    renderHubHero();
-    renderAccessBanner();
-    renderProgress();
-    renderModules();
-  });
 })();
