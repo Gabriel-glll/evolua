@@ -394,7 +394,7 @@
     const root = $("#tasksReader");
     const tf = content.tarefas[ti];
     const draft = (st[ti] && st[ti].draft) || {};
-    let html = `<div class="block in"><button class="back-link" id="backTarefas">← Voltar para as tarefas</button>
+    let html = `<div class="block in"><button class="back-arrow" id="backTarefas" aria-label="Voltar para as tarefas">←</button>
       <h2 class="b-title" style="margin-top:10px">${esc(tf.titulo)}</h2>
       <p class="b-text" style="color:var(--text-mut)">Responda às ${tf.questoes.length} questões e clique em Concluir tarefa. Os resultados aparecem só ao concluir.</p></div>`;
     tf.questoes.forEach((qq, qi) => { html += tarefaQHTML(qq, qi, draft); });
@@ -487,7 +487,7 @@
     const tf = content.tarefas[ti];
     const state = getJSON(TAREFASKEY, {})[ti] || {};
     const answers = state.answers || {};
-    let html = `<div class="block in"><button class="back-link" id="backTarefas">← Voltar para as tarefas</button>
+    let html = `<div class="block in"><button class="back-arrow" id="backTarefas" aria-label="Voltar para as tarefas">←</button>
       <div class="comp-card" style="margin-top:10px">
         <div class="comp-title" style="color:var(--green)">${esc(tf.titulo)} — concluída</div>
         <div class="timer-display">${state.score} <span style="font-size:1.1rem;color:var(--text-mut)">/ ${state.total}</span></div>
@@ -715,7 +715,7 @@
     const notes = getJSON(NKEY, {});
     root.innerHTML = `
       <div class="lesson-hero" style="--accent:${course.color}">
-        <a class="back-link" href="curso-${courseId}.html">← ${esc(course.name)} · voltar para a grade</a>
+        <a class="back-arrow" href="curso-${courseId}.html" aria-label="Voltar para a grade">←</a>
         <span class="eyebrow">${esc(course.full)}</span>
         <h1>${esc(lesson.title)}</h1>
         <p class="lh-sub">⏱️ ${esc(lesson.min || "")} min</p>

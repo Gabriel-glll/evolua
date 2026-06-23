@@ -23,6 +23,8 @@
           <nav class="nav-links" id="navLinks">
             ${navLink("index.html", "Início", "inicio")}
             ${navLink("cursos.html", "Cursos", "cursos")}
+            ${navLink("area-aluno.html", "Área do Aluno", "aluno")}
+            ${navLink("area-professor.html", "Área do Professor", "professor")}
             ${navLink("index.html#contato", "Contato", "contato")}
           </nav>
           <div class="nav-actions">
