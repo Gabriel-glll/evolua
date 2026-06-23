@@ -513,11 +513,24 @@
     return `<div class="comp-card teste-card">
       <div class="comp-title">Teste da aula</div>
       <p class="comp-desc">São <b>${teste.questoes.length} perguntas</b> de múltipla escolha. Você tem <b>1 hora</b>, e o teste só pode ser <b>iniciado e encerrado com a senha</b> da prova. <b>Tentativa única.</b></p>
-      <div class="comp-pass" id="startPassWrap" style="display:none">
-        <input type="text" id="examStartPass" placeholder="Senha do teste" autocomplete="off">
-        <button class="btn btn-gold" id="examStartGo">Começar</button></div>
       <button class="btn btn-gold btn-lg" id="startTesteBtn">Iniciar teste</button>
-      <div class="comp-msg" id="startMsg"></div></div>`;
+
+      <div class="exam-terms hidden" id="examTerms">
+        <h4>Termos e regras do teste</h4>
+        <ul class="terms-list">
+          <li>Este teste é <b>individual</b> e de <b>tentativa única</b>. Após iniciar, o tempo de <b>1 hora</b> corre continuamente e não pode ser pausado.</li>
+          <li>Comprometo-me a realizá-lo com <b>honestidade</b>, sem consulta indevida, ajuda de terceiros ou qualquer forma de fraude.</li>
+          <li>O resultado reflete o meu desempenho e é de <b>minha inteira responsabilidade</b>.</li>
+          <li>Estou ciente de que o resultado e as minhas respostas serão <b>registrados e enviados à administração</b> da escola.</li>
+          <li>A EVOLUA <b>não se responsabiliza</b> por falhas de internet, energia, dispositivo ou por eu sair da página durante o teste — o tempo continua correndo.</li>
+          <li>Após encerrar o teste, <b>não será possível refazê-lo</b>.</li>
+        </ul>
+        <label class="terms-agree"><input type="checkbox" id="agreeChk"> Declaro que li e concordo com os termos e regras acima.</label>
+        <div class="comp-pass">
+          <input type="text" id="examStartPass" placeholder="Senha do teste" autocomplete="off">
+          <button class="btn btn-gold" id="examStartGo" disabled>Começar teste</button></div>
+        <div class="comp-msg" id="startMsg"></div>
+      </div></div>`;
   }
 
   function bindTesteCard(root, teste) {
@@ -533,13 +546,18 @@
     if (!teste || !teste.questoes) return;
     const startBtn = $("#startTesteBtn", root);
     if (!startBtn) return;
-    startBtn.onclick = () => { $("#startPassWrap").style.display = "flex"; startBtn.style.display = "none"; $("#examStartPass").focus(); };
+    startBtn.onclick = () => { $("#examTerms").classList.remove("hidden"); startBtn.style.display = "none"; };
+    const chk = $("#agreeChk", root);
+    const goBtn = $("#examStartGo", root);
+    chk.addEventListener("change", () => { goBtn.disabled = !chk.checked; });
     const go = () => {
+      const m = $("#startMsg");
+      if (!chk.checked) { m.className = "comp-msg err"; m.textContent = "Você precisa concordar com os termos."; return; }
       const val = ($("#examStartPass").value || "").trim().toUpperCase();
       if (val === testPass(courseId, lesson).toUpperCase()) openExam(teste);
-      else { const m = $("#startMsg"); m.className = "comp-msg err"; m.textContent = "Senha do teste incorreta."; }
+      else { m.className = "comp-msg err"; m.textContent = "Senha do teste incorreta."; }
     };
-    $("#examStartGo").onclick = go;
+    goBtn.onclick = go;
     $("#examStartPass").addEventListener("keydown", (e) => { if (e.key === "Enter") go(); });
   }
 
@@ -559,24 +577,52 @@
     if (!start) { start = { ts: Date.now() }; setJSON(EXAMKEY, start); }
     const ov = document.createElement("div");
     ov.className = "exam-overlay"; ov.id = "examOverlay";
+    const n = teste.questoes.length;
     ov.innerHTML = `
       <div class="exam-top">
         <div class="exam-title">📝 Teste — ${esc(lesson.title)}</div>
         <div class="exam-timer" id="examTimer">60:00</div></div>
-      <div class="exam-body"><div class="exam-inner" id="examQs"></div>
-        <div class="comp-card" style="margin-top:20px">
-          <p class="comp-desc">Para encerrar, confirme com a senha do teste.</p>
-          <div class="comp-pass">
+      <div class="exam-layout">
+        <div class="exam-main" id="examQs"></div>
+        <aside class="exam-side">
+          <div class="exam-side-card">
+            <div class="es-title">Suas respostas</div>
+            <div class="es-grid" id="esGrid"></div>
+            <div class="es-count" id="esCount">0 de ${n} respondidas</div>
+          </div>
+          <div class="exam-side-card">
+            <div class="es-title">Encerrar teste</div>
+            <p class="es-hint">Confirme com a senha do teste para finalizar.</p>
             <input type="text" id="examEndPass" placeholder="Senha do teste" autocomplete="off">
-            <button class="btn btn-gold btn-lg" id="examFinish">Finalizar e ver nota</button></div>
-          <div class="comp-msg" id="endMsg"></div></div></div>`;
+            <button class="btn btn-gold btn-block" id="examFinish">Encerrar teste</button>
+            <div class="comp-msg" id="endMsg"></div>
+          </div>
+        </aside>
+      </div>`;
     document.body.appendChild(ov);
     document.body.style.overflow = "hidden";
 
     $("#examQs", ov).innerHTML = teste.questoes.map((q, i) => `
-      <div class="exam-q"><div class="qq">${i + 1}. ${esc(q.q)}</div>
+      <div class="exam-q" id="exq-${i}"><div class="qq">${i + 1}. ${esc(q.q)}</div>
         <div class="exam-opts">${q.options.map((o, oi) =>
           `<label class="exam-opt"><input type="radio" name="eq${i}" value="${oi}"><span>${esc(o)}</span></label>`).join("")}</div></div>`).join("");
+
+    // painel de respostas (direita)
+    const grid = $("#esGrid", ov);
+    grid.innerHTML = teste.questoes.map((q, i) => `<button class="es-chip" data-go="${i}">${i + 1}</button>`).join("");
+    grid.querySelectorAll(".es-chip").forEach((c) => c.addEventListener("click", () => {
+      const el = ov.querySelector("#exq-" + c.dataset.go); if (el) el.scrollIntoView({ behavior: "smooth", block: "center" });
+    }));
+    const updateNav = () => {
+      let count = 0;
+      teste.questoes.forEach((q, i) => {
+        const answered = !!ov.querySelector(`input[name="eq${i}"]:checked`);
+        if (answered) count++;
+        grid.querySelector(`.es-chip[data-go="${i}"]`).classList.toggle("answered", answered);
+      });
+      $("#esCount", ov).textContent = `${count} de ${n} respondidas`;
+    };
+    ov.querySelectorAll('input[type="radio"]').forEach((r) => r.addEventListener("change", updateNav));
 
     const finish = () => {
       const answers = teste.questoes.map((q, i) => {
