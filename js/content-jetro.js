@@ -39,13 +39,6 @@ const JETRO_CONTENT = {
         text: "Você não precisa entender tudo de uma vez. Conhecimento se constrói em camadas. Vá com calma, faça as tarefas e aplique uma coisa de cada vez." },
 
       { type: "bigquote", text: "Administrar bem o pouco é o primeiro passo para cuidar bem do muito." },
-
-      { type: "write", title: "Antes de começar, reflita",
-        hint: "Suas respostas ficam salvas aqui no seu navegador.",
-        prompts: [
-          { q: "Por que você decidiu estudar finanças agora?", ph: "Escreva com sinceridade..." },
-          { q: "Onde você quer estar daqui a 1 ano com o seu dinheiro?", ph: "Ex: sem dívidas, com reserva, com um negócio..." },
-        ]},
     ],
     bibliography: [
       "Bíblia Sagrada — Êxodo 18; Provérbios 4.",
@@ -108,12 +101,6 @@ const JETRO_CONTENT = {
         text: "Promessas de enriquecer rápido e fácil quase sempre escondem armadilhas. A JETRO é o caminho contrário: o do conhecimento sólido, construído passo a passo." },
 
       { type: "bigquote", text: "O sábio aprende as regras; o tolo aprende só na dor. Você está escolhendo o caminho do sábio." },
-
-      { type: "write", title: "Reflexão",
-        hint: "Pense com calma antes de escrever.",
-        prompts: [
-          { q: "Qual decisão financeira você já tomou no impulso e se arrependeu?", ph: "O que faltou de conhecimento ali?" },
-        ]},
     ],
     bibliography: [
       "Bíblia Sagrada — Oséias 4:6; Provérbios 24.",
@@ -251,13 +238,6 @@ const JETRO_CONTENT = {
         after: { lab: "Decisão com lógica", ph: "“Qual meu objetivo? Quais as opções? Vale o custo?”" } },
 
       { type: "bigquote", text: "Toda escolha é uma troca. Decidir bem é saber o que você está trocando." },
-
-      { type: "write", title: "Pratique agora",
-        hint: "Escolha uma decisão que você precisa tomar em breve.",
-        prompts: [
-          { q: "Qual o objetivo dessa decisão?", ph: "O que eu quero de verdade aqui?" },
-          { q: "Quais as opções e o custo de oportunidade de cada uma?", ph: "Se eu escolher A, abro mão de..." },
-        ]},
     ],
     bibliography: [
       "Bíblia Sagrada — Provérbios 21; Tiago 1:5.",

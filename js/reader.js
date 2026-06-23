@@ -246,6 +246,16 @@
       return;
     }
 
+    // aula com conclusão livre (ex.: introdução) — sem timer e sem senha
+    if (lesson.freeComplete) {
+      zone.innerHTML = `<div class="comp-card">
+        <div class="comp-title">Pronto para concluir</div>
+        <p class="comp-desc">Esta aula introdutória pode ser marcada como concluída quando você quiser.</p>
+        <button class="btn btn-gold btn-lg" id="completeBtn">✓ Marcar como concluída</button></div>`;
+      $("#completeBtn").onclick = () => { Auth.setDone(courseId, lessonId, true); burst(); renderComplete(); };
+      return;
+    }
+
     if (mode === "turma") {
       zone.innerHTML = `<div class="comp-card">${modeSwitch}
         <div class="comp-title">Para concluir esta aula</div>

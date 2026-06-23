@@ -12,14 +12,6 @@ const MEA_CONTENT = {
 
       { type: "bi", en: "Imagine yourself already talking.", pt: "Imagine-se já falando." },
 
-      { type: "write", title: "Imagine-se ali, se comunicando. Escreva isso.",
-        hint: "Não existe resposta certa. Apenas imagine e registre — suas respostas ficam salvas no seu navegador.",
-        prompts: [
-          { q: "Where would you be?", sub: "Onde você estaria?", ph: "Ex: em uma viagem, no trabalho, num café..." },
-          { q: "Who would you be talking to?", sub: "Com quem você estaria falando?", ph: "Ex: novos amigos, clientes, minha família..." },
-          { q: "What would you be doing?", sub: "O que você estaria fazendo?", ph: "Ex: contando uma história, fechando um negócio..." },
-        ]},
-
       { type: "text", eyebrow: "As 2 leis do aprendizado", title: "Dois princípios que mudam tudo",
         html: "No <b>MEA</b> trabalhamos com dois princípios fundamentais. Estas leis são a base para o seu desenvolvimento contínuo." },
 

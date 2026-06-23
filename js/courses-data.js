@@ -77,7 +77,7 @@ const COURSES = {
       {
         title: "Tema 1 — Introdução",
         lessons: [
-          { id: "jetro-1a", title: "Bem-vindo à JETRO", week: 1, min: 18 },
+          { id: "jetro-1a", title: "Bem-vindo à JETRO", week: 1, min: 18, freeComplete: true },
           { id: "jetro-1b", title: "Por que conhecimento muda o jogo", week: 1, min: 20 },
         ],
       },
