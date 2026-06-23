@@ -77,18 +77,8 @@ const MEA_CONTENT = {
       { type: "text", title: "Você já deu o primeiro passo",
         html: "Cada passo, por menor que seja, te aproxima do objetivo. A jornada de mil milhas começa com um único passo — e você já deu esse passo ao estar aqui. 🌱" },
     ],
-    tasks: [
-      "Escrever a sua visão de “imagine yourself already talking”.",
-      "Reler os flashcards em voz alta uma vez por dia.",
-    ],
-    test: [
-      { q: "Qual é a Lei #1 do aprendizado no MEA?",
-        options: ["Responsabilidade pelo que você pensa e faz", "Estudar 8 horas por dia", "Nunca errar"],
-        answer: 0, explain: "Tudo começa pela responsabilidade sobre pensamentos e ações." },
-      { q: "Aprender inglês é sobre...",
-        options: ["Perfeição", "Constância", "Talento natural"],
-        answer: 1, explain: "É sobre constância, não perfeição." },
-    ],
+    tarefas: [],
+    teste: null,
   },
 };
 
@@ -110,7 +100,7 @@ Object.entries(MEA_SOON).forEach(([id, o]) => {
         text: "Esta etapa está sendo preparada com a mesma calma das demais. Em breve disponível para você." },
       { type: "text", title: "O que vem nesta aula", html: o },
     ],
-    tasks: [],
-    test: [],
+    tarefas: [],
+    teste: null,
   };
 });

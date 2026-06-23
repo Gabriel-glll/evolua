@@ -160,33 +160,7 @@
   }
 
   function tasksTabHTML() {
-    const tasks = content.tasks || [];
-    const test = content.test || [];
-    const tdone = getJSON(TKEY, {});
-    let html = `<div class="reader">`;
-
-    html += `<div class="block"><h2 class="b-title">✅ Tarefas</h2>`;
-    if (tasks.length) {
-      html += `<div class="task-list">${tasks.map((t, i) =>
-        `<label class="task-row"><input type="checkbox" data-task="${i}" ${tdone[i] ? "checked" : ""}><span>${esc(t)}</span></label>`).join("")}</div>`;
-    } else {
-      html += `<p class="b-text" style="color:var(--text-mut)">As tarefas desta aula estão a caminho.</p>`;
-    }
-    html += `</div>`;
-
-    html += `<div class="block"><h2 class="b-title">📝 Teste</h2>`;
-    if (test.length) {
-      html += `<p class="b-text" style="color:var(--text-mut)">Responda para conferir o que você fixou.</p>`;
-      test.forEach((q, qi) => {
-        const opts = q.options.map((o, i) => `<button class="opt" data-i="${i}">${esc(o)}</button>`).join("");
-        html += `<div class="quiz" data-answer="${q.answer}" data-explain="${esc(q.explain || "")}">
-          <div class="qq">${qi + 1}. ${esc(q.q)}</div><div class="opts">${opts}</div><div class="quiz-fb"></div></div>`;
-      });
-    } else {
-      html += `<p class="b-text" style="color:var(--text-mut)">O teste desta aula está a caminho.</p>`;
-    }
-    html += `</div></div>`;
-    return html;
+    return `<div class="reader" id="tasksReader"></div>`;
   }
 
   function bindQuizzes(root) {
@@ -335,12 +309,213 @@
     }));
   }
 
-  function bindTasks(root) {
-    const tdone = getJSON(TKEY, {});
-    $$('input[data-task]', root).forEach((c) => c.addEventListener("change", () => {
-      tdone[c.dataset.task] = c.checked; setJSON(TKEY, tdone);
-    }));
-    bindQuizzes(root);
+  /* =========================================================
+     TAREFAS E TESTE
+     - liberados só após a aula concluída
+     - 2 tarefas (sem restrição) + 1 teste (modo prova)
+     ========================================================= */
+  const TAREFASKEY = `evolua_tarefas_${who}_${lessonId}`;
+  const TESTEKEY = `evolua_teste_${who}_${lessonId}`;
+  const EXAMKEY = `evolua_exam_${who}_${lessonId}`;
+  const EXAM_SECONDS = 60 * 60;
+
+  function bindTasks() { renderTasksTab(); }
+
+  function renderTasksTab() {
+    const root = $("#tasksReader");
+    if (!root) return;
+    if (!Auth.getDone(courseId).has(lessonId)) {
+      root.innerHTML = `<div class="block"><div class="comp-card">
+        <div style="font-size:2.4rem">🔒</div>
+        <div class="comp-title">Tarefas e teste bloqueados</div>
+        <p class="comp-desc">Conclua a aula na aba <b>Conteúdo</b> para liberar as 2 tarefas e o teste.</p>
+        <button class="btn btn-ghost" id="goContent">Voltar ao conteúdo</button></div></div>`;
+      $("#goContent").onclick = () => $('.rtab[data-tab="content"]').click();
+      return;
+    }
+
+    const tarefas = content.tarefas || [];
+    const teste = content.teste;
+    let html = `<div class="block"><h2 class="b-title">✅ Tarefas</h2>
+      <p class="b-text" style="color:var(--text-mut)">Sem tempo nem limite de tentativas — responda no seu ritmo. As respostas ficam salvas.</p></div>`;
+
+    if (!tarefas.length) {
+      html += `<div class="block"><p class="b-text" style="color:var(--text-mut)">As tarefas desta aula estão em preparação.</p></div>`;
+    } else {
+      tarefas.forEach((tf, ti) => {
+        html += `<div class="block tarefa-box"><h3 class="b-title" style="font-size:1.25rem">${esc(tf.titulo)}</h3>`;
+        tf.questoes.forEach((qq, qi) => { html += taskQuestionHTML(ti, qq, qi); });
+        html += `</div>`;
+      });
+    }
+
+    html += `<div class="block"><h2 class="b-title">📝 Teste</h2>${testeCardHTML(teste)}</div>`;
+    root.innerHTML = html;
+    bindTaskQuestions(root);
+    bindTesteCard(root, teste);
+  }
+
+  function taskQuestionHTML(ti, qq, qi) {
+    const saved = getJSON(TAREFASKEY, {});
+    const key = `t${ti}q${qi}`;
+    if (qq.type === "write") {
+      return `<div class="task-q"><div class="qq">${qi + 1}. ${esc(qq.q)}</div>
+        <textarea data-wkey="${key}" placeholder="Escreva sua resposta...">${esc(saved[key] || "")}</textarea></div>`;
+    }
+    const opts = qq.options.map((o, i) => `<button class="opt" data-i="${i}">${esc(o)}</button>`).join("");
+    return `<div class="task-q mc" data-key="${key}" data-answer="${qq.answer}" data-explain="${esc(qq.explain || "")}">
+      <div class="qq">${qi + 1}. ${esc(qq.q)}</div><div class="opts">${opts}</div><div class="quiz-fb"></div></div>`;
+  }
+
+  function bindTaskQuestions(root) {
+    const saved = getJSON(TAREFASKEY, {});
+    $$("textarea[data-wkey]", root).forEach((t) => {
+      let timer;
+      t.addEventListener("input", () => { saved[t.dataset.wkey] = t.value; clearTimeout(timer);
+        timer = setTimeout(() => setJSON(TAREFASKEY, saved), 400); });
+    });
+    $$(".task-q.mc", root).forEach((q) => {
+      const ans = +q.dataset.answer, fb = q.querySelector(".quiz-fb"), key = q.dataset.key;
+      const apply = (chosen) => {
+        $$(".opt", q).forEach((o) => o.classList.remove("correct", "wrong"));
+        if (chosen == null) return;
+        const ok = chosen === ans;
+        q.querySelector(`.opt[data-i="${chosen}"]`).classList.add(ok ? "correct" : "wrong");
+        if (!ok) q.querySelector(`.opt[data-i="${ans}"]`).classList.add("correct");
+        fb.style.color = ok ? "var(--green)" : "var(--red)";
+        fb.textContent = (ok ? "✓ " : "✗ ") + (q.dataset.explain || "");
+      };
+      if (saved[key] != null) apply(+saved[key]);
+      $$(".opt", q).forEach((opt) => opt.addEventListener("click", () => {
+        saved[key] = +opt.dataset.i; setJSON(TAREFASKEY, saved); apply(+opt.dataset.i);
+      }));
+    });
+  }
+
+  function testeCardHTML(teste) {
+    if (!teste || !teste.questoes || !teste.questoes.length)
+      return `<p class="b-text" style="color:var(--text-mut)">O teste desta aula está em preparação.</p>`;
+    const result = getJSON(TESTEKEY, null);
+    if (result) {
+      return `<div class="comp-card teste-card">
+        <div class="comp-title" style="color:var(--green)">Teste concluído</div>
+        <div class="timer-display">${result.score} <span style="font-size:1.1rem;color:var(--text-mut)">/ ${result.total}</span></div>
+        <p class="comp-desc">Você já realizou este teste (tentativa única).</p>
+        <button class="btn btn-ghost" id="reviewBtn">Ver minhas respostas</button>
+        <div id="reviewBox" class="hidden" style="margin-top:18px;text-align:left"></div></div>`;
+    }
+    return `<div class="comp-card teste-card">
+      <div class="comp-title">Teste da aula</div>
+      <p class="comp-desc">São <b>${teste.questoes.length} perguntas</b> de múltipla escolha. Você tem <b>1 hora</b>, e o teste só pode ser <b>iniciado e encerrado com a senha</b> da prova. <b>Tentativa única.</b></p>
+      <div class="comp-pass" id="startPassWrap" style="display:none">
+        <input type="text" id="examStartPass" placeholder="Senha do teste" autocomplete="off">
+        <button class="btn btn-gold" id="examStartGo">Começar</button></div>
+      <button class="btn btn-gold btn-lg" id="startTesteBtn">Iniciar teste</button>
+      <div class="comp-msg" id="startMsg"></div></div>`;
+  }
+
+  function bindTesteCard(root, teste) {
+    if (getJSON(TESTEKEY, null)) {
+      const rb = $("#reviewBtn", root);
+      if (rb) rb.onclick = () => {
+        const box = $("#reviewBox", root);
+        if (!box.dataset.built) { box.innerHTML = reviewHTML(teste, getJSON(TESTEKEY, {}).answers || []); box.dataset.built = "1"; }
+        box.classList.toggle("hidden");
+      };
+      return;
+    }
+    if (!teste || !teste.questoes) return;
+    const startBtn = $("#startTesteBtn", root);
+    if (!startBtn) return;
+    startBtn.onclick = () => { $("#startPassWrap").style.display = "flex"; startBtn.style.display = "none"; $("#examStartPass").focus(); };
+    const go = () => {
+      const val = ($("#examStartPass").value || "").trim().toUpperCase();
+      if (val === testPass(courseId, lesson).toUpperCase()) openExam(teste);
+      else { const m = $("#startMsg"); m.className = "comp-msg err"; m.textContent = "Senha do teste incorreta."; }
+    };
+    $("#examStartGo").onclick = go;
+    $("#examStartPass").addEventListener("keydown", (e) => { if (e.key === "Enter") go(); });
+  }
+
+  function reviewHTML(teste, answers) {
+    return teste.questoes.map((q, i) => {
+      const chosen = answers[i], ok = chosen === q.answer;
+      return `<div class="rev-q ${ok ? "ok" : "no"}">
+        <div class="qq">${i + 1}. ${esc(q.q)}</div>
+        <div class="rev-line">Sua resposta: <b>${chosen != null ? esc(q.options[chosen]) : "(em branco)"}</b> ${ok ? "✓" : "✗"}</div>
+        ${ok ? "" : `<div class="rev-line">Correta: <b>${esc(q.options[q.answer])}</b></div>`}
+        ${q.explain ? `<div class="rev-exp">${esc(q.explain)}</div>` : ""}</div>`;
+    }).join("");
+  }
+
+  function openExam(teste) {
+    let start = getJSON(EXAMKEY, null);
+    if (!start) { start = { ts: Date.now() }; setJSON(EXAMKEY, start); }
+    const ov = document.createElement("div");
+    ov.className = "exam-overlay"; ov.id = "examOverlay";
+    ov.innerHTML = `
+      <div class="exam-top">
+        <div class="exam-title">📝 Teste — ${esc(lesson.title)}</div>
+        <div class="exam-timer" id="examTimer">60:00</div></div>
+      <div class="exam-body"><div class="exam-inner" id="examQs"></div>
+        <div class="comp-card" style="margin-top:20px">
+          <p class="comp-desc">Para encerrar, confirme com a senha do teste.</p>
+          <div class="comp-pass">
+            <input type="text" id="examEndPass" placeholder="Senha do teste" autocomplete="off">
+            <button class="btn btn-gold btn-lg" id="examFinish">Finalizar e ver nota</button></div>
+          <div class="comp-msg" id="endMsg"></div></div></div>`;
+    document.body.appendChild(ov);
+    document.body.style.overflow = "hidden";
+
+    $("#examQs", ov).innerHTML = teste.questoes.map((q, i) => `
+      <div class="exam-q"><div class="qq">${i + 1}. ${esc(q.q)}</div>
+        <div class="exam-opts">${q.options.map((o, oi) =>
+          `<label class="exam-opt"><input type="radio" name="eq${i}" value="${oi}"><span>${esc(o)}</span></label>`).join("")}</div></div>`).join("");
+
+    const finish = () => {
+      const answers = teste.questoes.map((q, i) => {
+        const sel = ov.querySelector(`input[name="eq${i}"]:checked`); return sel ? +sel.value : null;
+      });
+      let score = 0; answers.forEach((a, i) => { if (a === teste.questoes[i].answer) score++; });
+      setJSON(TESTEKEY, { score, total: teste.questoes.length, answers, at: Date.now() });
+      localStorage.removeItem(EXAMKEY);
+      clearInterval(exTimer);
+      const lines = teste.questoes.map((q, i) => ({ q: q.q,
+        chosen: answers[i] != null ? q.options[answers[i]] : "(em branco)",
+        correct: q.options[q.answer], ok: answers[i] === q.answer }));
+      const mail = sendTestResult({ student: (sess && sess.name) || who, courseName: course.full,
+        lessonTitle: lesson.title, score, total: teste.questoes.length, lines });
+      ov.remove(); document.body.style.overflow = "";
+      burst(); renderTasksTab(); showMailFeedback(mail);
+    };
+
+    $("#examFinish", ov).onclick = () => {
+      const val = ($("#examEndPass").value || "").trim().toUpperCase();
+      if (val === testPass(courseId, lesson).toUpperCase()) finish();
+      else { $("#endMsg").className = "comp-msg err"; $("#endMsg").textContent = "Senha incorreta para encerrar."; }
+    };
+
+    const timerEl = $("#examTimer", ov);
+    var exTimer = setInterval(() => {
+      const left = EXAM_SECONDS - Math.floor((Date.now() - start.ts) / 1000);
+      if (left <= 0) { timerEl.textContent = "00:00"; finish(); return; }
+      timerEl.textContent = `${String(Math.floor(left / 60)).padStart(2, "0")}:${String(left % 60).padStart(2, "0")}`;
+      if (left <= 60) timerEl.classList.add("danger");
+    }, 1000);
+  }
+
+  function showMailFeedback(mail) {
+    const root = $("#tasksReader"); if (!root) return;
+    const note = document.createElement("div"); note.className = "block";
+    if (mail.method === "emailjs") {
+      note.innerHTML = `<div class="callout verse"><span class="ci">📧</span><div><h4>Resultado enviado</h4>
+        <p>O resultado e as respostas foram enviados por e-mail à direção.</p></div></div>`;
+    } else {
+      note.innerHTML = `<div class="callout warn"><span class="ci">📧</span><div><h4>Enviar resultado à direção</h4>
+        <p>Clique para enviar o resultado por e-mail. (O envio automático fica ativo ao configurar o EmailJS.)</p>
+        <a class="btn btn-gold" href="${mail.url}" style="margin-top:10px">Enviar resultado por e-mail</a></div></div>`;
+    }
+    root.prepend(note); window.scrollTo({ top: 0 });
   }
 
   function burst() {
@@ -399,7 +574,7 @@
 
     const cWrap = $("#tab-content"), tWrap = $("#tab-tasks");
     bindContent(cWrap, notes);
-    bindTasks(tWrap);
+    bindTasks();
     setupReveal(cWrap);
     renderComplete();
 
@@ -410,7 +585,7 @@
       activeTab = isContent ? "content" : "tasks";
       cWrap.classList.toggle("hidden", !isContent);
       tWrap.classList.toggle("hidden", isContent);
-      if (!isContent) setupReveal(tWrap);
+      if (!isContent) { bindTasks(); setupReveal(tWrap); }
       window.scrollTo({ top: 0, behavior: "instant" in document.documentElement.style ? "instant" : "auto" });
     }));
   }

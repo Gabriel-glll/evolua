@@ -11,3 +11,8 @@ function lessonPass(courseId, lesson) {
   const tail = lesson.id.split("-").pop().toUpperCase();
   return `${pref}-${wk}-${tail}`;
 }
+
+/* senha para iniciar e encerrar o TESTE (prova) */
+function testPass(courseId, lesson) {
+  return "PROVA-" + lessonPass(courseId, lesson);
+}

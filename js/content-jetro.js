@@ -52,19 +52,34 @@ const JETRO_CONTENT = {
       "EKER, T. Harv. Os Segredos da Mente Milionária.",
       "Material e princípios próprios da Escola EVOLUA.",
     ],
-    tasks: [
-      "Assistir/ler a aula completa com calma.",
-      "Responder às duas perguntas de reflexão.",
-      "Definir um objetivo financeiro para os próximos 12 meses.",
+    tarefas: [
+      { titulo: "Tarefa 1 — Fundamentos da JETRO", questoes: [
+        { type: "mc", q: "O que é a JETRO?", options: ["A escola de educação financeira da EVOLUA", "Uma igreja", "Um banco"], answer: 0, explain: "É o curso de educação financeira da EVOLUA." },
+        { type: "mc", q: "Como a JETRO enxerga o dinheiro?", options: ["Como um fim em si mesmo", "Como uma ferramenta a ser bem administrada", "Como algo a ser evitado"], answer: 1, explain: "Dinheiro é ferramenta a serviço da vida, da família e do propósito." },
+        { type: "mc", q: "Quem foi Jetro (Êxodo 18)?", options: ["Sogro de Moisés e conselheiro de gestão", "Rei do Egito", "Irmão de Moisés"], answer: 0, explain: "Jetro, sacerdote de Midiã, aconselhou Moisés a organizar e delegar." },
+        { type: "mc", q: "O conselho de Jetro a Moisés foi sobre:", options: ["Delegar e organizar o trabalho", "Desistir da liderança", "Cobrar mais impostos"], answer: 0, explain: "Escolher líderes para grupos menores — um dos 1ºs exemplos de delegação." },
+        { type: "write", q: "Em uma frase, o que você espera conquistar com a JETRO?" },
+      ]},
+      { titulo: "Tarefa 2 — Sua jornada", questoes: [
+        { type: "mc", q: "Quantos temas tem a JETRO?", options: ["9", "5", "12"], answer: 0, explain: "São 9 temas, do mais simples ao mais avançado." },
+        { type: "mc", q: "Qual tema vem primeiro?", options: ["Introdução", "Matemática", "Realidade"], answer: 0, explain: "Começamos pela Introdução." },
+        { type: "mc", q: "O que NÃO faz parte da proposta da JETRO?", options: ["Decisões melhores", "Enriquecer rápido e fácil", "Paz financeira"], answer: 1, explain: "Atalhos de enriquecimento rápido costumam ser armadilhas." },
+        { type: "mc", q: "Administrar bem o pouco é o primeiro passo para:", options: ["Cuidar bem do muito", "Ficar rico amanhã", "Não fazer nada"], answer: 0, explain: "Fidelidade no pouco prepara para o muito." },
+        { type: "write", q: "Qual é o seu objetivo financeiro para os próximos 12 meses?" },
+      ]},
     ],
-    test: [
-      { q: "Qual figura bíblica inspira o nome do curso e por quê?",
-        options: ["Jetro, por sua sabedoria em gestão e delegação (Êxodo 18)", "Salomão, por ser o mais rico", "Moisés, por liderar o povo"],
-        answer: 0, explain: "Jetro aconselhou Moisés a organizar e delegar — símbolo de gestão sábia." },
-      { q: "Como a JETRO enxerga o dinheiro?",
-        options: ["Como um fim em si mesmo", "Como uma ferramenta a ser bem administrada", "Como algo a ser evitado"],
-        answer: 1, explain: "Dinheiro é ferramenta: bem administrado, serve à vida, à família e ao propósito." },
-    ],
+    teste: { questoes: [
+      { q: "A JETRO é o curso de quê da EVOLUA?", options: ["Educação financeira", "Inglês", "Teologia"], answer: 0, explain: "Educação financeira." },
+      { q: "Jetro era ___ de Moisés.", options: ["Sogro", "Filho", "Inimigo"], answer: 0, explain: "Sogro, pai de Zípora." },
+      { q: "O conselho de Jetro está registrado em qual livro?", options: ["Êxodo", "Apocalipse", "Salmos"], answer: 0, explain: "Êxodo 18." },
+      { q: "Jetro simboliza, sobretudo:", options: ["Sabedoria prática e gestão", "Riqueza material", "Força física"], answer: 0, explain: "Gestão, organização e liderança." },
+      { q: "Quantos temas tem o curso?", options: ["9", "7", "15"], answer: 0, explain: "9 temas." },
+      { q: "Dinheiro, na visão da JETRO, é:", options: ["Ferramenta", "Um fim em si", "Um mal"], answer: 0, explain: "Ferramenta bem administrada." },
+      { q: "A JETRO promete enriquecimento rápido e fácil?", options: ["Não", "Sim", "Às vezes"], answer: 0, explain: "Não — o caminho é o conhecimento sólido." },
+      { q: "“Administrar bem o pouco” leva a:", options: ["Cuidar bem do muito", "Gastar mais", "Nada"], answer: 0, explain: "Fidelidade no pouco." },
+      { q: "O curso une princípios cristãos a:", options: ["Prática moderna", "Superstição", "Sorte"], answer: 0, explain: "Princípios + prática." },
+      { q: "O primeiro tema do curso é:", options: ["Introdução", "Mentalidade", "Realidade"], answer: 0, explain: "Introdução." },
+    ]},
   },
 
   "jetro-1b": {
@@ -105,18 +120,34 @@ const JETRO_CONTENT = {
       "KIYOSAKI, Robert. Pai Rico, Pai Pobre.",
       "CERBASI, Gustavo. Casais Inteligentes Enriquecem Juntos.",
     ],
-    tasks: [
-      "Escrever uma decisão financeira que você gostaria de aprender a fazer melhor.",
-      "Compartilhar com alguém de confiança o seu objetivo de aprender finanças.",
+    tarefas: [
+      { titulo: "Tarefa 1 — A causa real", questoes: [
+        { type: "mc", q: "Segundo a aula, a maior causa das dificuldades financeiras é:", options: ["Falta de conhecimento certo", "Falta de inteligência", "Azar"], answer: 0, explain: "Quase sempre falta conhecimento — e isso se aprende." },
+        { type: "mc", q: "Conhecimento financeiro te deixa:", options: ["Livre para decidir com clareza", "Ganancioso", "Mais pobre"], answer: 0, explain: "Liberdade para decidir, não ganância." },
+        { type: "mc", q: "Um fruto do conhecimento aplicado é:", options: ["Decisões melhores", "Mais brigas em casa", "Menos tempo livre"], answer: 0, explain: "Decisões melhores, mais paz, família mais forte." },
+        { type: "mc", q: "Promessas de enriquecer rápido geralmente:", options: ["Escondem armadilhas", "São garantidas", "Não têm risco"], answer: 0, explain: "Atalhos costumam ser armadilhas." },
+        { type: "write", q: "Descreva uma decisão financeira que você tomou no impulso e se arrependeu." },
+      ]},
+      { titulo: "Tarefa 2 — Frutos e caminhos", questoes: [
+        { type: "mc", q: "Dinheiro organizado em casa gera:", options: ["Mais paz", "Mais brigas", "Indiferença"], answer: 0, explain: "Menos conflito, mais paz." },
+        { type: "mc", q: "O caminho da JETRO é o do:", options: ["Conhecimento sólido, passo a passo", "Atalho rápido", "Pura sorte"], answer: 0, explain: "Conhecimento construído com calma." },
+        { type: "mc", q: "“O sábio aprende as regras; o tolo aprende só na ___.”", options: ["Dor", "escola", "internet"], answer: 0, explain: "Aprender antes da dor é o caminho do sábio." },
+        { type: "mc", q: "Conhecimento financeiro abre portas para:", options: ["Poupar, investir e empreender", "Gastar mais", "Nada muda"], answer: 0, explain: "Base sólida gera oportunidades." },
+        { type: "write", q: "Que conhecimento financeiro você mais quer dominar neste curso?" },
+      ]},
     ],
-    test: [
-      { q: "Segundo a aula, qual costuma ser a verdadeira causa das dificuldades financeiras?",
-        options: ["Falta de capacidade ou inteligência", "Falta de conhecimento certo sobre o dinheiro", "Falta de sorte"],
-        answer: 1, explain: "Na maioria das vezes falta conhecimento — e isso se aprende." },
-      { q: "O que o conhecimento financeiro NÃO promete?",
-        options: ["Decisões melhores", "Enriquecer rápido e fácil", "Mais clareza e paz"],
-        answer: 1, explain: "Atalhos de enriquecimento rápido costumam ser armadilhas." },
-    ],
+    teste: { questoes: [
+      { q: "A verdadeira causa das dificuldades financeiras costuma ser:", options: ["Falta de conhecimento", "Falta de capacidade", "Falta de sorte"], answer: 0, explain: "Falta de conhecimento — que se aprende." },
+      { q: "Conhecimento financeiro te torna:", options: ["Livre para decidir com clareza", "Ganancioso", "Acomodado"], answer: 0, explain: "Clareza para decidir." },
+      { q: "Saber para onde vai o dinheiro reduz:", options: ["A ansiedade", "A renda", "A fé"], answer: 0, explain: "Tira um peso das costas." },
+      { q: "Dinheiro organizado fortalece:", options: ["A família", "As brigas", "O impulso"], answer: 0, explain: "Menos brigas, mais paz." },
+      { q: "Promessas de enriquecer rápido geralmente:", options: ["Escondem armadilhas", "São seguras", "Vêm de bancos sérios"], answer: 0, explain: "Cuidado com atalhos." },
+      { q: "O caminho da JETRO é:", options: ["Conhecimento sólido passo a passo", "Atalhos", "Sorte"], answer: 0, explain: "Construção sólida." },
+      { q: "Conhecimento aplicado produz:", options: ["Decisões melhores", "Mais impulsos", "Confusão"], answer: 0, explain: "Decisões melhores." },
+      { q: "“O sábio aprende as regras; o tolo aprende só na dor.” Isso significa:", options: ["Aprender antes evita o sofrimento", "É melhor sofrer", "Regras não importam"], answer: 0, explain: "Aprender antecipa e protege." },
+      { q: "Conhecimento financeiro abre portas para:", options: ["Poupar, investir e empreender", "Apenas gastar", "Nada"], answer: 0, explain: "Novas oportunidades." },
+      { q: "A boa notícia central da aula é:", options: ["Conhecimento se aprende", "Só os ricos conseguem", "Não há solução"], answer: 0, explain: "Todos podem aprender." },
+    ]},
   },
 
   /* ===================== TEMA 2 — LÓGICA ===================== */
@@ -154,18 +185,8 @@ const JETRO_CONTENT = {
       "DOBELLI, Rolf. A Arte de Pensar Claramente.",
       "KAHNEMAN, Daniel. Rápido e Devagar: Duas Formas de Pensar.",
     ],
-    tasks: [
-      "Durante um dia, antes de cada compra, pergunte: “qual a consequência disso?”.",
-      "Anotar uma decisão recente e descrever o efeito que ela gerou.",
-    ],
-    test: [
-      { q: "Qual é o primeiro passo de uma decisão lógica?",
-        options: ["Agir rápido", "Observar os fatos reais", "Perguntar a opinião de todos"],
-        answer: 1, explain: "Decisão boa começa com fatos, não com suposição." },
-      { q: "Qual é o maior inimigo da lógica citado na aula?",
-        options: ["A calma", "A pressa / o impulso", "A informação"],
-        answer: 1, explain: "A pressa leva a decidir sem pensar nas consequências." },
-    ],
+    tarefas: [],
+    teste: null,
   },
 
   "jetro-2b": {
@@ -201,17 +222,8 @@ const JETRO_CONTENT = {
       "DOBELLI, Rolf. A Arte de Pensar Claramente.",
       "Exercícios de raciocínio lógico — material próprio EVOLUA.",
     ],
-    tasks: [
-      "Criar 1 sequência numérica própria e descobrir o padrão.",
-      "Identificar 1 situação de “causa e efeito” na sua semana financeira.",
-    ],
-    test: [
-      { q: "Na sequência 5, 10, 20, 40, ... qual é o próximo número?",
-        options: ["60", "80", "50"], answer: 1, explain: "Dobra a cada passo: 40 × 2 = 80." },
-      { q: "O que é deduzir?",
-        options: ["Adivinhar sem base", "Tirar uma conclusão lógica a partir de fatos conhecidos", "Repetir o que ouviu"],
-        answer: 1, explain: "Dedução parte de fatos para chegar a uma conclusão coerente." },
-    ],
+    tarefas: [],
+    teste: null,
   },
 
   "jetro-2c": {
@@ -252,18 +264,8 @@ const JETRO_CONTENT = {
       "KAHNEMAN, Daniel. Rápido e Devagar.",
       "MCKEOWN, Greg. Essencialismo.",
     ],
-    tasks: [
-      "Aplicar o método das 5 etapas em uma decisão real desta semana.",
-      "Testar a regra das 24 horas em uma vontade de compra.",
-    ],
-    test: [
-      { q: "O que é custo de oportunidade?",
-        options: ["O preço do produto", "Aquilo que você abre mão ao escolher outra coisa", "Um imposto"],
-        answer: 1, explain: "Toda escolha implica renunciar a outra — esse é o custo de oportunidade." },
-      { q: "Para que serve a regra das 24 horas?",
-        options: ["Adiar contas", "Evitar compras por impulso", "Pesquisar preço"],
-        answer: 1, explain: "Esperar 24h separa a vontade passageira da necessidade real." },
-    ],
+    tarefas: [],
+    teste: null,
   },
 };
 
@@ -302,7 +304,7 @@ Object.entries(JETRO_SOON).forEach(([id, v]) => {
       { type: "text", title: "O que você vai aprender aqui", html: v.o },
     ],
     bibliography: ["Bíblia Sagrada.", "Material próprio da Escola EVOLUA (em preparação)."],
-    tasks: [],
-    test: [],
+    tarefas: [],
+    teste: null,
   };
 });

@@ -610,3 +610,47 @@ p  { margin: 0 0 1rem; color: var(--text-soft); }
 .student-row.present { border-color: var(--green); }
 .cham-restrito { max-width: 460px; margin: 90px auto; text-align: center; padding: 0 24px; }
 
+/* ===========================================================
+   TAREFAS, TESTE (modo prova) e REVISÃO
+   =========================================================== */
+.tarefa-box { background: var(--bg-card); border: 1px solid var(--line); border-radius: 16px; padding: 22px 24px; }
+.tarefa-box > .b-title { margin-top: 0; }
+.task-q { margin: 16px 0 0; padding-top: 16px; border-top: 1px solid var(--line-soft); }
+.task-q .qq { font-weight: 600; margin-bottom: 10px; }
+.task-q .opts { display: flex; flex-direction: column; gap: 8px; }
+.task-q .opt { text-align: left; background: var(--bg); border: 1px solid var(--line); border-radius: 10px;
+  padding: 11px 14px; cursor: pointer; font-family: var(--sans); font-size: .94rem; color: var(--text); transition: .15s; }
+.task-q .opt:hover { border-color: var(--gold); }
+.task-q .opt.correct { border-color: var(--green); background: rgba(87,199,154,.16); }
+.task-q .opt.wrong { border-color: var(--red); background: rgba(255,125,106,.14); }
+.task-q .quiz-fb { font-size: .88rem; margin-top: 10px; }
+.task-q textarea { width: 100%; min-height: 70px; resize: vertical; background: var(--bg); border: 1px solid var(--line);
+  border-radius: 10px; padding: 11px 14px; font-family: var(--sans); font-size: .95rem; color: var(--text); }
+.task-q textarea:focus { outline: none; border-color: var(--gold); }
+.teste-card { text-align: center; }
+
+/* modo prova — overlay de tela cheia */
+.exam-overlay { position: fixed; inset: 0; z-index: 300; background: var(--bg); overflow-y: auto; }
+.exam-top { position: sticky; top: 0; z-index: 2; display: flex; justify-content: space-between; align-items: center;
+  padding: 14px 22px; background: var(--bg-soft); border-bottom: 1px solid var(--line); }
+.exam-title { font-family: var(--serif); font-size: 1.15rem; }
+.exam-timer { font-family: var(--serif); font-size: 1.7rem; color: var(--gold); font-variant-numeric: tabular-nums;
+  background: var(--bg-card); border: 1px solid var(--line); border-radius: 999px; padding: 6px 18px; }
+.exam-timer.danger { color: var(--red); border-color: var(--red); }
+.exam-body { max-width: 760px; margin: 0 auto; padding: 28px 24px 90px; }
+.exam-q { background: var(--bg-card); border: 1px solid var(--line); border-radius: 14px; padding: 20px 22px; margin-bottom: 14px; }
+.exam-q .qq { font-weight: 600; margin-bottom: 12px; }
+.exam-opts { display: flex; flex-direction: column; gap: 8px; }
+.exam-opt { display: flex; gap: 10px; align-items: center; background: var(--bg); border: 1px solid var(--line);
+  border-radius: 10px; padding: 12px 14px; cursor: pointer; }
+.exam-opt:hover { border-color: var(--gold); }
+.exam-opt input { accent-color: var(--gold); width: 18px; height: 18px; }
+
+/* revisão de respostas */
+.rev-q { border: 1px solid var(--line); border-radius: 12px; padding: 14px 16px; margin-bottom: 10px; background: var(--bg); }
+.rev-q.ok { border-left: 3px solid var(--green); }
+.rev-q.no { border-left: 3px solid var(--red); }
+.rev-q .qq { font-weight: 600; margin-bottom: 6px; }
+.rev-line { font-size: .9rem; color: var(--text-soft); }
+.rev-exp { font-size: .85rem; color: var(--text-mut); margin-top: 6px; }
+

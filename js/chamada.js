@@ -48,9 +48,11 @@
             <div class="field"><label>Aula</label>
               <select id="selLesson"></select></div>
           </div>
-          <div style="margin-top:8px">
-            <label style="font-size:.8rem;letter-spacing:.5px;color:var(--text-mut)">Senha desta aula</label><br>
-            <span class="pass-pill" id="passPill">—</span>
+          <div class="cham-row" style="margin-top:8px">
+            <div><label style="font-size:.8rem;letter-spacing:.5px;color:var(--text-mut)">Senha de presença (concluir aula)</label><br>
+              <span class="pass-pill" id="passPill">—</span></div>
+            <div><label style="font-size:.8rem;letter-spacing:.5px;color:var(--text-mut)">Senha do teste (prova)</label><br>
+              <span class="pass-pill" id="testPill">—</span></div>
           </div>
         </div>
 
@@ -87,6 +89,7 @@
     function updatePass() {
       const l = findLesson(selLesson.value);
       $("#passPill").textContent = l ? lessonPass(selCourse.value, l) : "—";
+      $("#testPill").textContent = l ? testPass(selCourse.value, l) : "—";
       $("#sendMsg").textContent = "";
     }
     function fillStudents() {
