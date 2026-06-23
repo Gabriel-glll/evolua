@@ -22,7 +22,7 @@
     const root = $("#cham-root");
     const user = Auth.current();
 
-    if (!user || user.role !== "admin") {
+    if (!user || (user.role !== "admin" && user.role !== "professor")) {
       root.innerHTML = `<div class="cham-restrito">
         <div style="font-size:3rem">🔒</div>
         <h1>Área restrita</h1>

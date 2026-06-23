@@ -207,7 +207,7 @@
   let activeTab = "content";
   let timerInt = null;
 
-  function isAdmin() { return sess && sess.role === "admin"; }
+  function isAdmin() { return sess && (sess.role === "admin" || sess.role === "professor"); }
   function getMode() {
     if (isAdmin()) return localStorage.getItem(DEMOMODEKEY) || "independente";
     const u = Auth.fullUser();

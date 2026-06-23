@@ -47,3 +47,19 @@ function sendTestResult(p) {
   const url = `mailto:${MAILER.to}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
   return { method: "mailto", url };
 }
+
+/* Envia o código de verificação para o e-mail do usuário (cadastro).
+   retorna { method:"emailjs" } ou { method:"demo", code } (sem EmailJS). */
+function sendVerification(email, code) {
+  const cfg = MAILER.emailjs;
+  if (cfg.publicKey && cfg.serviceId && cfg.templateId && window.emailjs) {
+    try {
+      window.emailjs.send(cfg.serviceId, cfg.templateId,
+        { to_email: email, subject: "Seu código de verificação — EVOLUA",
+          message: `Bem-vindo(a) à EVOLUA! O seu código de verificação é: ${code}` },
+        { publicKey: cfg.publicKey });
+      return { method: "emailjs" };
+    } catch (e) { /* cai no modo demo */ }
+  }
+  return { method: "demo", code };
+}

@@ -50,7 +50,7 @@
   }
 
   function renderProfessor(root, user) {
-    if (!user || user.role !== "admin") {
+    if (!user || (user.role !== "admin" && user.role !== "professor")) {
       root.innerHTML = lockCard("Área do Professor", "Acesso exclusivo para professores e administração.", "Entrar como professor(a)");
       bindLogin(); return;
     }

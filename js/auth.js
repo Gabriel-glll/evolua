@@ -26,6 +26,35 @@ const Auth = (() => {
     },
   ];
 
+  /* Códigos de cadastro -> papel. A senha que a pessoa usa para se
+     cadastrar define se ela vira aluno ou professor.
+     Troque estes códigos quando quiser. */
+  const REG_CODES = {
+    "aluno2026": "aluno",
+    "professor2026": "professor",
+  };
+  function roleForCode(code) {
+    return REG_CODES[String(code || "").trim().toLowerCase()] || null;
+  }
+  function emailTaken(email) {
+    const e = String(email || "").trim().toLowerCase();
+    return loadUsers().some((u) => (u.email || "").toLowerCase() === e || u.username.toLowerCase() === e);
+  }
+  // cria a conta (após a verificação de e-mail). username = e-mail.
+  function createUser({ name, email, password, role }) {
+    const users = loadUsers();
+    const e = email.trim().toLowerCase();
+    const user = { username: e, name: name.trim(), email: e, password, role, enrollments: {} };
+    // aluno recém-cadastrado já entra com acesso aos cursos (modalidade independente).
+    if (role === "aluno" && typeof COURSES !== "undefined") {
+      const today = new Date().toISOString().slice(0, 10);
+      Object.keys(COURSES).forEach((cid) => { user.enrollments[cid] = { mode: "independente", start: today }; });
+    }
+    users.push(user);
+    saveUsers(users);
+    return user;
+  }
+
   function loadUsers() {
     try {
       const raw = JSON.parse(localStorage.getItem(LS_USERS));
@@ -80,7 +109,7 @@ const Auth = (() => {
   function lessonAccess(courseId, lesson) {
     const user = fullUser();
     if (!user) return { state: "locked-login" };
-    if (user.role === "admin") return { state: "open" };
+    if (user.role === "admin" || user.role === "professor") return { state: "open" };
 
     const en = user.enrollments && user.enrollments[courseId];
     if (!en) return { state: "locked-enroll" };
@@ -99,7 +128,7 @@ const Auth = (() => {
   function hasAnyAccess(courseId) {
     const user = fullUser();
     if (!user) return false;
-    if (user.role === "admin") return true;
+    if (user.role === "admin" || user.role === "professor") return true;
     return !!(user.enrollments && user.enrollments[courseId]);
   }
 
@@ -127,5 +156,6 @@ const Auth = (() => {
     lessonAccess, hasAnyAccess,
     getDone, setDone,
     loadUsers, saveUsers,
+    roleForCode, emailTaken, createUser,
   };
 })();
