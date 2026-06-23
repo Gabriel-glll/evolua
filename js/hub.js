@@ -140,7 +140,6 @@
     if (meta) meta.innerHTML = `
       <div class="m"><b>${course.meta.duracao}</b><span>Duração</span></div>
       <div class="m"><b>${course.meta.aulas}</b><span>Aulas</span></div>
-      <div class="m"><b>${course.modules.length} módulos</b><span>Estrutura</span></div>
-      <div class="m"><b>${course.meta.nivel}</b><span>Nível</span></div>`;
+      <div class="m"><b>${course.modules.length} módulos</b><span>Estrutura</span></div>`;
   }
 })();

@@ -207,7 +207,7 @@ p  { margin: 0 0 1rem; color: var(--text-soft); }
 .course-card .sub { color: var(--text-mut); font-size: .9rem; margin-bottom: 14px; }
 .course-body { padding: 0 30px 30px; flex: 1; display: flex; flex-direction: column; }
 .course-meta { display: flex; gap: 20px; margin: 18px 0; font-size: .82rem; color: var(--text-soft); flex-wrap: wrap; }
-.course-meta b { color: var(--text); font-family: var(--serif); font-size: 1.05rem; }
+.course-meta b { color: var(--text); font-family: var(--sans); font-weight: 700; font-size: 1.05rem; font-feature-settings: "tnum"; }
 .course-actions { margin-top: auto; display: flex; gap: 12px; padding-top: 10px; }
 .accent-bar { height: 4px; background: linear-gradient(90deg, var(--gold-deep), var(--gold-soft)); }
 
@@ -217,7 +217,7 @@ p  { margin: 0 0 1rem; color: var(--text-soft); }
 .breadcrumb { font-size: .82rem; color: var(--text-mut); margin-bottom: 18px; }
 .breadcrumb a:hover { color: var(--gold); }
 .hub-meta { display: flex; gap: 38px; flex-wrap: wrap; margin-top: 26px; }
-.hub-meta .m b { display: block; font-family: var(--serif); font-size: 1.7rem; color: var(--gold); }
+.hub-meta .m b { display: block; font-family: var(--sans); font-weight: 700; font-size: 1.5rem; letter-spacing: -.3px; color: var(--gold); font-feature-settings: "tnum"; }
 .hub-meta .m span { font-size: .78rem; letter-spacing: 1.5px; text-transform: uppercase; color: var(--text-mut); }
 
 .access-banner {

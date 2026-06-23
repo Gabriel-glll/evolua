@@ -365,7 +365,7 @@
           <div class="tcard-ico">${done ? "✓" : "📝"}</div>
           <div class="tcard-body"><div class="tcard-title">${esc(tf.titulo)}</div>
             <div class="tcard-sub">${tf.questoes.length} questões · ${done ? `Concluída — ${st[ti].score}/${st[ti].total}` : "A fazer"}</div></div>
-          <div class="tcard-go">${done ? "Ver respostas →" : "Abrir →"}</div></button>`;
+          <div class="tcard-go">${done ? (isAdmin() ? "Refazer →" : "Ver respostas →") : "Abrir →"}</div></button>`;
       });
       html += `</div></div>`;
     }
@@ -389,7 +389,7 @@
 
   function openTarefa(ti) {
     const st = getJSON(TAREFASKEY, {});
-    if (st[ti] && st[ti].done) return reviewTarefa(ti);
+    if (st[ti] && st[ti].done && !isAdmin()) return reviewTarefa(ti);
 
     const root = $("#tasksReader");
     const tf = content.tarefas[ti];
@@ -415,7 +415,7 @@
     const draft = st[ti].draft;
     const save = () => {
       const cur = getJSON(TAREFASKEY, {});
-      if (cur[ti] && cur[ti].done) return; // tarefa já concluída — não sobrescrever
+      if (cur[ti] && cur[ti].done && !isAdmin()) return; // tarefa já concluída — não sobrescrever
       cur[ti] = cur[ti] || {};
       cur[ti].draft = draft;
       setJSON(TAREFASKEY, cur);
@@ -506,8 +506,9 @@
       return `<div class="comp-card teste-card">
         <div class="comp-title" style="color:var(--green)">Teste concluído</div>
         <div class="timer-display">${result.score} <span style="font-size:1.1rem;color:var(--text-mut)">/ ${result.total}</span></div>
-        <p class="comp-desc">Você já realizou este teste (tentativa única).</p>
+        <p class="comp-desc">${isAdmin() ? "Como administrador, você pode refazer quantas vezes quiser." : "Você já realizou este teste (tentativa única)."}</p>
         <button class="btn btn-ghost" id="reviewBtn">Ver minhas respostas</button>
+        ${isAdmin() ? `<button class="btn btn-gold" id="redoTesteBtn" style="margin-top:12px">Refazer teste (admin)</button>` : ""}
         <div id="reviewBox" class="hidden" style="margin-top:18px;text-align:left"></div></div>`;
     }
     return `<div class="comp-card teste-card">
@@ -540,6 +541,10 @@
         const box = $("#reviewBox", root);
         if (!box.dataset.built) { box.innerHTML = reviewHTML(teste, getJSON(TESTEKEY, {}).answers || []); box.dataset.built = "1"; }
         box.classList.toggle("hidden");
+      };
+      const redo = $("#redoTesteBtn", root);
+      if (redo) redo.onclick = () => {
+        localStorage.removeItem(TESTEKEY); localStorage.removeItem(EXAMKEY); renderTasksHome();
       };
       return;
     }
