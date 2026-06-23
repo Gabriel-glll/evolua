@@ -629,6 +629,22 @@ p  { margin: 0 0 1rem; color: var(--text-soft); }
 .task-q textarea:focus { outline: none; border-color: var(--gold); }
 .teste-card { text-align: center; }
 
+/* cards de tarefa (escolha) */
+.tarefa-cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 14px; }
+.tcard { display: flex; align-items: center; gap: 14px; text-align: left; background: var(--bg-card);
+  border: 1px solid var(--line); border-radius: 14px; padding: 16px 18px; cursor: pointer; transition: .2s;
+  font-family: var(--sans); color: var(--text); }
+.tcard:hover { border-color: var(--gold); transform: translateY(-3px); box-shadow: var(--shadow); }
+.tcard.done { border-color: rgba(87,199,154,.5); }
+.tcard-ico { width: 42px; height: 42px; flex: 0 0 42px; border-radius: 10px; display: grid; place-items: center;
+  font-size: 1.2rem; background: var(--bg-card-2); color: var(--gold); }
+.tcard.done .tcard-ico { background: rgba(87,199,154,.18); color: var(--green); }
+.tcard-body { flex: 1; }
+.tcard-title { font-family: var(--serif); font-size: 1.12rem; }
+.tcard-sub { font-size: .82rem; color: var(--text-mut); }
+.tcard-go { font-size: .82rem; color: var(--gold); font-weight: 600; white-space: nowrap; }
+.task-q .opt.sel { border-color: var(--gold); background: rgba(255,138,61,.16); }
+
 /* modo prova — overlay de tela cheia */
 .exam-overlay { position: fixed; inset: 0; z-index: 300; background: var(--bg); overflow-y: auto; }
 .exam-top { position: sticky; top: 0; z-index: 2; display: flex; justify-content: space-between; align-items: center;

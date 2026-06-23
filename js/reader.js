@@ -239,10 +239,8 @@
     if (done) {
       zone.innerHTML = `<div class="comp-card">${modeSwitch}
         <div class="comp-title" style="color:var(--green)">🌱 Aula concluída — parabéns!</div>
-        <p class="comp-desc">Você pode seguir para as Tarefas e Teste, ou revisar o conteúdo.</p>
-        <button class="btn btn-ghost" id="undoBtn">Desfazer conclusão</button></div>`;
+        <p class="comp-desc">A conclusão é definitiva. Agora você já pode fazer as Tarefas e o Teste desta aula.</p></div>`;
       bindModeSwitch();
-      $("#undoBtn") && ($("#undoBtn").onclick = () => { Auth.setDone(courseId, lessonId, false); renderComplete(); });
       return;
     }
 
@@ -331,75 +329,173 @@
 
   function bindTasks() { renderTasksTab(); }
 
+  const markIn = () => $$(".block", $("#tasksReader")).forEach((b) => b.classList.add("in"));
+
   function renderTasksTab() {
     const root = $("#tasksReader");
     if (!root) return;
     if (!Auth.getDone(courseId).has(lessonId)) {
-      root.innerHTML = `<div class="block"><div class="comp-card">
+      root.innerHTML = `<div class="block in"><div class="comp-card">
         <div style="font-size:2.4rem">🔒</div>
         <div class="comp-title">Tarefas e teste bloqueados</div>
-        <p class="comp-desc">Conclua a aula na aba <b>Conteúdo</b> para liberar as 2 tarefas e o teste.</p>
+        <p class="comp-desc">Conclua a aula na aba <b>Conteúdo</b> para liberar as tarefas e o teste.</p>
         <button class="btn btn-ghost" id="goContent">Voltar ao conteúdo</button></div></div>`;
       $("#goContent").onclick = () => $('.rtab[data-tab="content"]').click();
       return;
     }
+    renderTasksHome();
+  }
 
+  function renderTasksHome() {
+    const root = $("#tasksReader");
     const tarefas = content.tarefas || [];
     const teste = content.teste;
+    const st = getJSON(TAREFASKEY, {});
+
     let html = `<div class="block"><h2 class="b-title">✅ Tarefas</h2>
-      <p class="b-text" style="color:var(--text-mut)">Sem tempo nem limite de tentativas — responda no seu ritmo. As respostas ficam salvas.</p></div>`;
+      <p class="b-text" style="color:var(--text-mut)">Escolha uma tarefa, responda e clique em <b>Concluir tarefa</b> para ver os resultados. Uma vez concluída, não pode ser refeita.</p></div>`;
 
     if (!tarefas.length) {
       html += `<div class="block"><p class="b-text" style="color:var(--text-mut)">As tarefas desta aula estão em preparação.</p></div>`;
     } else {
+      html += `<div class="block"><div class="tarefa-cards">`;
       tarefas.forEach((tf, ti) => {
-        html += `<div class="block tarefa-box"><h3 class="b-title" style="font-size:1.25rem">${esc(tf.titulo)}</h3>`;
-        tf.questoes.forEach((qq, qi) => { html += taskQuestionHTML(ti, qq, qi); });
-        html += `</div>`;
+        const done = st[ti] && st[ti].done;
+        html += `<button class="tcard ${done ? "done" : ""}" data-ti="${ti}">
+          <div class="tcard-ico">${done ? "✓" : "📝"}</div>
+          <div class="tcard-body"><div class="tcard-title">${esc(tf.titulo)}</div>
+            <div class="tcard-sub">${tf.questoes.length} questões · ${done ? `Concluída — ${st[ti].score}/${st[ti].total}` : "A fazer"}</div></div>
+          <div class="tcard-go">${done ? "Ver respostas →" : "Abrir →"}</div></button>`;
       });
+      html += `</div></div>`;
     }
 
     html += `<div class="block"><h2 class="b-title">📝 Teste</h2>${testeCardHTML(teste)}</div>`;
     root.innerHTML = html;
-    bindTaskQuestions(root);
+    root.querySelectorAll(".tcard").forEach((c) => c.addEventListener("click", () => openTarefa(+c.dataset.ti)));
     bindTesteCard(root, teste);
+    markIn();
   }
 
-  function taskQuestionHTML(ti, qq, qi) {
-    const saved = getJSON(TAREFASKEY, {});
-    const key = `t${ti}q${qi}`;
+  function tarefaQHTML(qq, qi, answers) {
+    const val = answers[qi];
     if (qq.type === "write") {
-      return `<div class="task-q"><div class="qq">${qi + 1}. ${esc(qq.q)}</div>
-        <textarea data-wkey="${key}" placeholder="Escreva sua resposta...">${esc(saved[key] || "")}</textarea></div>`;
+      return `<div class="block task-q"><div class="qq">${qi + 1}. ${esc(qq.q)}</div>
+        <textarea data-tq="${qi}" placeholder="Escreva sua resposta...">${esc(val != null ? val : "")}</textarea></div>`;
     }
-    const opts = qq.options.map((o, i) => `<button class="opt" data-i="${i}">${esc(o)}</button>`).join("");
-    return `<div class="task-q mc" data-key="${key}" data-answer="${qq.answer}" data-explain="${esc(qq.explain || "")}">
-      <div class="qq">${qi + 1}. ${esc(qq.q)}</div><div class="opts">${opts}</div><div class="quiz-fb"></div></div>`;
+    const opts = qq.options.map((o, i) => `<button type="button" class="opt ${val === i ? "sel" : ""}" data-i="${i}">${esc(o)}</button>`).join("");
+    return `<div class="block task-q mc" data-qi="${qi}"><div class="qq">${qi + 1}. ${esc(qq.q)}</div><div class="opts">${opts}</div></div>`;
   }
 
-  function bindTaskQuestions(root) {
-    const saved = getJSON(TAREFASKEY, {});
-    $$("textarea[data-wkey]", root).forEach((t) => {
-      let timer;
-      t.addEventListener("input", () => { saved[t.dataset.wkey] = t.value; clearTimeout(timer);
-        timer = setTimeout(() => setJSON(TAREFASKEY, saved), 400); });
-    });
+  function openTarefa(ti) {
+    const st = getJSON(TAREFASKEY, {});
+    if (st[ti] && st[ti].done) return reviewTarefa(ti);
+
+    const root = $("#tasksReader");
+    const tf = content.tarefas[ti];
+    const draft = (st[ti] && st[ti].draft) || {};
+    let html = `<div class="block in"><button class="back-link" id="backTarefas">← Voltar para as tarefas</button>
+      <h2 class="b-title" style="margin-top:10px">${esc(tf.titulo)}</h2>
+      <p class="b-text" style="color:var(--text-mut)">Responda às ${tf.questoes.length} questões e clique em Concluir tarefa. Os resultados aparecem só ao concluir.</p></div>`;
+    tf.questoes.forEach((qq, qi) => { html += tarefaQHTML(qq, qi, draft); });
+    html += `<div class="block"><div class="comp-card">
+      <button class="btn btn-gold btn-lg" id="concluirTarefa">✓ Concluir tarefa</button>
+      <div class="comp-msg" id="tarefaMsg"></div></div></div>`;
+    root.innerHTML = html;
+    $("#backTarefas").onclick = renderTasksHome;
+    bindTarefaInputs(root, ti);
+    $("#concluirTarefa").onclick = () => concludeTarefa(ti);
+    markIn(); window.scrollTo({ top: 0 });
+  }
+
+  function bindTarefaInputs(root, ti) {
+    const st = getJSON(TAREFASKEY, {});
+    if (!st[ti]) st[ti] = {};
+    if (!st[ti].draft) st[ti].draft = {};
+    const draft = st[ti].draft;
+    const save = () => {
+      const cur = getJSON(TAREFASKEY, {});
+      if (cur[ti] && cur[ti].done) return; // tarefa já concluída — não sobrescrever
+      cur[ti] = cur[ti] || {};
+      cur[ti].draft = draft;
+      setJSON(TAREFASKEY, cur);
+    };
     $$(".task-q.mc", root).forEach((q) => {
-      const ans = +q.dataset.answer, fb = q.querySelector(".quiz-fb"), key = q.dataset.key;
-      const apply = (chosen) => {
-        $$(".opt", q).forEach((o) => o.classList.remove("correct", "wrong"));
-        if (chosen == null) return;
-        const ok = chosen === ans;
-        q.querySelector(`.opt[data-i="${chosen}"]`).classList.add(ok ? "correct" : "wrong");
-        if (!ok) q.querySelector(`.opt[data-i="${ans}"]`).classList.add("correct");
-        fb.style.color = ok ? "var(--green)" : "var(--red)";
-        fb.textContent = (ok ? "✓ " : "✗ ") + (q.dataset.explain || "");
-      };
-      if (saved[key] != null) apply(+saved[key]);
+      const qi = +q.dataset.qi;
       $$(".opt", q).forEach((opt) => opt.addEventListener("click", () => {
-        saved[key] = +opt.dataset.i; setJSON(TAREFASKEY, saved); apply(+opt.dataset.i);
+        draft[qi] = +opt.dataset.i;
+        $$(".opt", q).forEach((o) => o.classList.remove("sel"));
+        opt.classList.add("sel"); save();
       }));
     });
+    $$("textarea[data-tq]", root).forEach((t) => {
+      let tm; t.addEventListener("input", () => { draft[+t.dataset.tq] = t.value; clearTimeout(tm); tm = setTimeout(save, 400); });
+    });
+  }
+
+  function concludeTarefa(ti) {
+    const tf = content.tarefas[ti];
+    const root = $("#tasksReader");
+    const answers = {};
+    tf.questoes.forEach((qq, qi) => {
+      if (qq.type === "write") {
+        const ta = root.querySelector(`textarea[data-tq="${qi}"]`);
+        answers[qi] = ta ? ta.value : "";
+      } else {
+        const sel = root.querySelector(`.task-q.mc[data-qi="${qi}"] .opt.sel`);
+        answers[qi] = sel ? +sel.dataset.i : null;
+      }
+    });
+    const faltou = tf.questoes.some((qq, qi) => answers[qi] == null || (qq.type === "write" && !String(answers[qi]).trim()));
+    if (faltou) {
+      const m = $("#tarefaMsg"); m.className = "comp-msg err"; m.textContent = "Responda todas as questões antes de concluir.";
+      return;
+    }
+    const draft = answers;
+    let score = 0, total = 0;
+    tf.questoes.forEach((qq, qi) => { if (qq.type === "mc") { total++; if (draft[qi] === qq.answer) score++; } });
+    const st = getJSON(TAREFASKEY, {});
+    st[ti] = { done: true, answers: draft, score, total, at: Date.now() };
+    setJSON(TAREFASKEY, st);
+
+    const lines = tf.questoes.map((qq, qi) => qq.type === "write"
+      ? { q: qq.q, chosen: draft[qi] || "(em branco)", open: true }
+      : { q: qq.q, chosen: qq.options[draft[qi]], correct: qq.options[qq.answer], ok: draft[qi] === qq.answer });
+    const mail = sendTestResult({ kind: "Tarefa", student: (sess && sess.name) || who, courseName: course.full,
+      lessonTitle: `${lesson.title} — ${tf.titulo}`, score, total, lines });
+
+    burst();
+    reviewTarefa(ti);
+    showMailFeedback(mail);
+  }
+
+  function tarefaReviewQHTML(qq, qi, answers) {
+    const val = answers[qi];
+    if (qq.type === "write") {
+      return `<div class="block rev-q ok"><div class="qq">${qi + 1}. ${esc(qq.q)}</div>
+        <div class="rev-line">Sua resposta: <b>${esc(val || "(em branco)")}</b></div></div>`;
+    }
+    const ok = val === qq.answer;
+    return `<div class="block rev-q ${ok ? "ok" : "no"}"><div class="qq">${qi + 1}. ${esc(qq.q)}</div>
+      <div class="rev-line">Sua resposta: <b>${val != null ? esc(qq.options[val]) : "(em branco)"}</b> ${ok ? "✓" : "✗"}</div>
+      ${ok ? "" : `<div class="rev-line">Correta: <b>${esc(qq.options[qq.answer])}</b></div>`}
+      ${qq.explain ? `<div class="rev-exp">${esc(qq.explain)}</div>` : ""}</div>`;
+  }
+
+  function reviewTarefa(ti) {
+    const root = $("#tasksReader");
+    const tf = content.tarefas[ti];
+    const state = getJSON(TAREFASKEY, {})[ti] || {};
+    const answers = state.answers || {};
+    let html = `<div class="block in"><button class="back-link" id="backTarefas">← Voltar para as tarefas</button>
+      <div class="comp-card" style="margin-top:10px">
+        <div class="comp-title" style="color:var(--green)">${esc(tf.titulo)} — concluída</div>
+        <div class="timer-display">${state.score} <span style="font-size:1.1rem;color:var(--text-mut)">/ ${state.total}</span></div>
+        <p class="comp-desc">Acertos nas questões de múltipla escolha. Suas respostas estão abaixo.</p></div></div>`;
+    tf.questoes.forEach((qq, qi) => { html += tarefaReviewQHTML(qq, qi, answers); });
+    root.innerHTML = html;
+    $("#backTarefas").onclick = renderTasksHome;
+    markIn(); window.scrollTo({ top: 0 });
   }
 
   function testeCardHTML(teste) {
@@ -493,7 +589,7 @@
       const lines = teste.questoes.map((q, i) => ({ q: q.q,
         chosen: answers[i] != null ? q.options[answers[i]] : "(em branco)",
         correct: q.options[q.answer], ok: answers[i] === q.answer }));
-      const mail = sendTestResult({ student: (sess && sess.name) || who, courseName: course.full,
+      const mail = sendTestResult({ kind: "Teste", student: (sess && sess.name) || who, courseName: course.full,
         lessonTitle: lesson.title, score, total: teste.questoes.length, lines });
       ov.remove(); document.body.style.overflow = "";
       burst(); renderTasksTab(); showMailFeedback(mail);
@@ -516,7 +612,7 @@
 
   function showMailFeedback(mail) {
     const root = $("#tasksReader"); if (!root) return;
-    const note = document.createElement("div"); note.className = "block";
+    const note = document.createElement("div"); note.className = "block in";
     if (mail.method === "emailjs") {
       note.innerHTML = `<div class="callout verse"><span class="ci">📧</span><div><h4>Resultado enviado</h4>
         <p>O resultado e as respostas foram enviados por e-mail à direção.</p></div></div>`;

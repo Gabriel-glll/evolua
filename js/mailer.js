@@ -15,15 +15,17 @@ const MAILER = {
 };
 
 function buildResultText(p) {
-  let t = `Resultado de teste — EVOLUA\n\n`;
+  const kind = p.kind || "Teste";
+  let t = `Resultado de ${kind} — EVOLUA\n\n`;
   t += `Aluno(a): ${p.student}\n`;
   t += `Curso: ${p.courseName}\n`;
   t += `Aula: ${p.lessonTitle}\n`;
   t += `Data: ${new Date().toLocaleString("pt-BR")}\n`;
-  t += `Pontuação: ${p.score} de ${p.total}\n\n`;
-  t += `Respostas:\n`;
+  if (p.score != null) t += `Pontuação: ${p.score} de ${p.total}\n`;
+  t += `\nRespostas:\n`;
   p.lines.forEach((l, i) => {
-    t += `\n${i + 1}. ${l.q}\n   Resposta do aluno: ${l.chosen}\n   Correta: ${l.correct}\n   ${l.ok ? "✓ Acertou" : "✗ Errou"}\n`;
+    t += `\n${i + 1}. ${l.q}\n   Resposta do aluno: ${l.chosen}\n`;
+    if (!l.open) t += `   Correta: ${l.correct}\n   ${l.ok ? "✓ Acertou" : "✗ Errou"}\n`;
   });
   return t;
 }
@@ -31,7 +33,7 @@ function buildResultText(p) {
 /* retorna { method:"emailjs"|"mailto", url? } */
 function sendTestResult(p) {
   const body = buildResultText(p);
-  const subject = `Resultado de teste — ${p.student} — ${p.courseName} (${p.score}/${p.total})`;
+  const subject = `Resultado de ${p.kind || "Teste"} — ${p.student} — ${p.courseName}${p.score != null ? ` (${p.score}/${p.total})` : ""}`;
 
   const cfg = MAILER.emailjs;
   if (cfg.publicKey && cfg.serviceId && cfg.templateId && window.emailjs) {
